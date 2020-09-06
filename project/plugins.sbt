@@ -17,5 +17,12 @@ addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.2")
 // Giter8 Plugin
 addSbtPlugin("org.foundweekends.giter8" % "sbt-giter8-scaffold" % "0.11.0")
 
+// Load testing tools:
+// http://gatling.io/docs/2.2.2/extensions/sbt_plugin.html
+addSbtPlugin("io.gatling" % "gatling-sbt" % "3.1.0")
+
+// sbt-paradox, used for documentation
+addSbtPlugin("com.lightbend.paradox" % "sbt-paradox" % "0.8.0")
+
 // Scala Formatter Plugin
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.2.1")
