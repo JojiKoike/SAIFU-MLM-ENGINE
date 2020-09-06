@@ -38,15 +38,19 @@ flyway/flywayClear
 ```
 
 #### Migration Info
-
 ```sbtshell
 flyway/flywayInfo
 ```
 
 #### Migration Target DB URL
-
 ```sbtshell
 flyway/flywayUrl
+```
+
+## Slick
+#### Code Generation
+```sbtshell
+slickCodegen
 ```
 
 # Note
