@@ -99,14 +99,10 @@ lazy val root = (project in file("."))
     name := """saifu-mlm-engine""",
     libraryDependencies ++= Seq(
         guice,
-        "io.lemonlabs"           %% "scala-uri"                % "1.4.10",
-        "org.joda"                % "joda-convert"             % "2.2.1",
-        "net.codingwell"         %% "scala-guice"              % "4.2.6",
         "net.logstash.logback"    % "logstash-logback-encoder" % "6.2",
         "org.postgresql"          % "postgresql"               % "42.2.16",
-        ws                        % Test,
-        "org.flywaydb"            % "flyway-core"              % FlywayVersion,
-        "org.scalatestplus.play" %% "scalatestplus-play"       % "5.0.0" % Test
+        "org.flywaydb"            % "flyway-core"              % FlywayVersion % Test,
+        "org.scalatestplus.play" %% "scalatestplus-play"       % "5.0.0"       % Test
       ),
     fork in Test := true
   )
