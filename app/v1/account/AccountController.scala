@@ -8,41 +8,66 @@ import play.api.mvc.{Action, AnyContent, Result}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class TenantFormInput(name: String, explain: String)
-
 class TenantController @Inject() (cc: TenantControllerComponents)(implicit
     ec: ExecutionContext
 ) extends TenantBaseController(cc) {
 
   private val logger = Logger(getClass)
 
-  private val form: Form[TenantFormInput] = {
-    import play.api.data.Forms._
-
-    Form(
-      mapping(
-        "name"    -> nonEmptyText,
-        "explain" -> text
-      )(TenantFormInput.apply)(TenantFormInput.unapply)
-    )
-  }
-
   def index: Action[AnyContent] =
     TenantAction.async { implicit request =>
       logger.trace("index: ")
       tenantResourceHandler.find.map { tenants =>
-        Ok(Json.toJson(tenants)).as("application/json")
+        Ok(Json.toJson(tenants))
       }
     }
 
   def process: Action[AnyContent] =
     TenantAction.async { implicit request =>
       logger.trace("process: ")
-      processJsonPost()
+      Tenant.createTenantInput.bindFromRequest.fold(
+        failure => {
+          Future.successful(BadRequest(failure.errorsAsJson))
+        },
+        success => {
+          tenantResourceHandler.create(success).map { tenant =>
+            Created(Json.toJson(tenant))
+          }
+        }
+      )
+    }
+
+  def update: Action[AnyContent] =
+    TenantAction.async { implicit request =>
+      logger.trace("update: ")
+      Tenant.updateTenantInput.bindFromRequest.fold(
+        failure => {
+          Future.successful(BadRequest(failure.errorsAsJson))
+        },
+        success => {
+          tenantResourceHandler.update(success).map { _ =>
+            NoContent
+          }
+        }
+      )
+    }
+
+  def delete: Action[AnyContent] =
+    TenantAction.async { implicit request =>
+      logger.trace("delete: ")
+      Tenant.deleteTenantInput.bindFromRequest.fold(
+        failure => {
+          Future.successful(BadRequest(failure.errorsAsJson))
+        },
+        success => {
+          tenantResourceHandler.delete(success).map { _ =>
+            NoContent
+          }
+        }
+      )
     }
 
   def show(id: String): Action[AnyContent] = {
-    println(id)
     TenantAction.async { implicit request =>
       logger.trace(s"show: id = $id")
       tenantResourceHandler.lookup(id).map { tenant =>
@@ -51,18 +76,4 @@ class TenantController @Inject() (cc: TenantControllerComponents)(implicit
     }
   }
 
-  private def processJsonPost[A]()(implicit
-      request: TenantRequest[A]
-  ): Future[Result] = {
-    def failure(badForm: Form[TenantFormInput]) = {
-      Future.successful(BadRequest(badForm.errorsAsJson))
-    }
-
-    def success(input: TenantFormInput) = {
-      tenantResourceHandler.create(input).map { tenant =>
-        Created(Json.toJson(tenant))
-      }
-    }
-    form.bindFromRequest().fold(failure, success)
-  }
 }

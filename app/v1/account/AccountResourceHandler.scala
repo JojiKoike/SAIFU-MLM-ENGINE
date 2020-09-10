@@ -11,18 +11,17 @@ import scala.concurrent.{ExecutionContext, Future}
 case class TenantResource(id: String, name: String, explain: Option[String])
 
 object TenantResource {
-
   implicit val format: Format[TenantResource] = Json.format
 }
 
 class TenantResourceHandler @Inject() (
     tenantDAO: TenantDAO
 )(implicit ec: ExecutionContext) {
-  def create(tenantFormInput: TenantFormInput)(implicit mc: MarkerContext): Future[TenantResource] = {
+  def create(createTenantInput: CreateTenantInput)(implicit mc: MarkerContext): Future[TenantResource] = {
     val data = Tenant(
       java.util.UUID.randomUUID(),
-      tenantFormInput.name,
-      Option(tenantFormInput.explain),
+      createTenantInput.name,
+      Option(createTenantInput.explain),
       delete_flag = false,
       DateTime.now(),
       None
@@ -41,6 +40,21 @@ class TenantResourceHandler @Inject() (
         createTenantResource(tenantData)
       }
     }
+  }
+
+  def update(updateTenantInput: UpdateTenantInput)(implicit mc: MarkerContext): Future[Option[TenantResource]] = {
+    val tenantFuture = tenantDAO.lookUp(updateTenantInput.id)
+    tenantFuture.map { maybeTenantData =>
+      maybeTenantData.map { tenantData =>
+        val modTenantData = tenantData.copy(name = updateTenantInput.name, explain = Option(updateTenantInput.explain))
+        tenantDAO.update(modTenantData)
+        createTenantResource(modTenantData)
+      }
+    }
+  }
+
+  def delete(deleteTenantInput: DeleteTenantInput)(implicit mc: MarkerContext): Future[Int] = {
+    tenantDAO.delete(deleteTenantInput.id)
   }
 
   def find(implicit mc: MarkerContext): Future[Iterable[TenantResource]] = {

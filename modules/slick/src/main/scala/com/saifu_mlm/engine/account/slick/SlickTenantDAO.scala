@@ -18,7 +18,7 @@ class SlickTenantDAO @Inject() (db: Database)(implicit ec: ExecutionContext) ext
 
   import profile.api._
 
-  private val queryById = Compiled((id: Rep[UUID]) => MTenants.filter(_.id === id))
+  private val queryById = Compiled((id: Rep[UUID]) => MTenants.filter(_.id === id).filter(!_.deleteFlag))
 
   override def lookUp(id: String): Future[Option[Tenant]] = {
     val f: Future[Option[MTenantsRow]] =
@@ -32,7 +32,7 @@ class SlickTenantDAO @Inject() (db: Database)(implicit ec: ExecutionContext) ext
   }
 
   override def update(tenant: Tenant): Future[Int] = {
-    db.run(queryById(tenant.id).update(tenantToMTenantsRow(tenant)))
+    db.run(queryById(tenant.id).update(tenantToMTenantsRow(tenant.copy(updated = Option(DateTime.now())))))
   }
 
   override def delete(id: String): Future[Int] = {

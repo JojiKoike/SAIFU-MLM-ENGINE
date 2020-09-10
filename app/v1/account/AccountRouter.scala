@@ -10,9 +10,17 @@ class AccountRouter @Inject() (controller: TenantController) extends SimpleRoute
   override def routes: Routes = {
     case GET(p"/tenant/") =>
       controller.index
-    case POST(p"/tenant/") =>
-      controller.process
+
     case GET(p"/tenant/$id") =>
       controller.show(id)
+
+    case POST(p"/tenant/") =>
+      controller.process
+
+    case PUT(p"/tenant/") =>
+      controller.update
+
+    case DELETE(p"/tenant/") =>
+      controller.delete
   }
 }
