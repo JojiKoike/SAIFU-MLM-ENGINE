@@ -17,6 +17,9 @@ addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.2")
 // Giter8 Plugin
 addSbtPlugin("org.foundweekends.giter8" % "sbt-giter8-scaffold" % "0.11.0")
 
+// Heroku Deploy
+addSbtPlugin("com.heroku" % "sbt-heroku" % "2.1.4")
+
 // Load testing tools:
 // http://gatling.io/docs/2.2.2/extensions/sbt_plugin.html
 addSbtPlugin("io.gatling" % "gatling-sbt" % "3.1.0")
