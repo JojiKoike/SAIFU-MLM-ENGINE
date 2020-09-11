@@ -9,10 +9,5 @@ addons:
 services:
   - postgresql
 
-before_script:
-  - psql -U postgres -c "CREATE ROLE saifu_mlm_engine_db_user LOGIN PASSWORD 'password'"
-  - psql -U postgres -c "CREATE DATABASE saifu_mlm_engine_db"
-  - psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE saifu_mlm_engin_db TO saifu_mlm_engin_db_user"
-
 script:
   postgres -v
