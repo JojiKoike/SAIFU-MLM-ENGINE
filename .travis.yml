@@ -32,4 +32,4 @@ deploy:
   on:
     repo: JojiKoike/saifu-mlm-engine
     branch: feature/prepare_cicd
-  skip_cleanup: true
+  skip_cleanup: false
