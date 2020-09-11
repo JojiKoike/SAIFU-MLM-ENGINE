@@ -18,7 +18,13 @@ addons:
 
 before_script:
   - psql --version
+  # https://github.com/travis-ci/travis-ci/issues/9624
+  # Peer Authentication Error 対策
   - sudo sed -i -e '/local.*peer/s/postgres/all/' -e 's/peer\|md5/trust/g' /etc/postgresql/*/main/pg_hba.conf
   - sudo service postgresql restart
   - sleep 1
   - psql -c "CREATE ROLE saifu_mlm_engine_db_user LOGIN PASSWORD 'password';" -U postgres
+  - psql -c "CREATE DATABASE saifu_mlm_engine_db;" -U postgres
+  - psql -c "GRANT ALL PRIVILEGES ON DATABASE saifu_mlm_engine_db TO saifu_mlm_engine_db_user;" -U postgres
+  - sbt flyway/Migration
+  - sbt slickCodegen
