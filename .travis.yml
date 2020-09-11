@@ -17,4 +17,4 @@ services:
   - postgresql
 
 before_script:
-  - psql -c "CREATE ROLE saifu_mlm_engin_db_user LOGIN PASSWORD 'password';" -U postgres
+  - psql -U postgres -c "CREATE ROLE saifu_mlm_engin_db_user LOGIN PASSWORD 'password';"
