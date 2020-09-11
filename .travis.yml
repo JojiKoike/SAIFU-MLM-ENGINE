@@ -1,3 +1,6 @@
+od: linux
+dist: focal
+
 language: scala
 
 scala:
@@ -6,6 +9,13 @@ scala:
 services:
   - postgresql
 
+addons:
+  postgresql: '12'
+  apt:
+    packages:
+      - postgresql-12
+      - postgresql-client-12
+
 before_script:
   - psql --version
-  - psql -c "CREATE ROLE saifu_mlm_engin_db_user LOGIN PASSWORD 'password';" -U postgres
+  - psql -c "CREATE ROLE saifu_mlm_engine_db_user LOGIN PASSWORD 'password';" -U postgres
