@@ -1,16 +1,11 @@
 language: scala
-scala:
-- 2.13.0
-deploy:
-  provider: heroku
-  api_key:
-    secure: BtsEy/Tas5fgHpbF0yHd2AhA8U1E49ax8VtcoMIElhTaZwnGbIuxDwnRsICa5NL82L439T1YlNcWpL/KPqnCIlFkTejVwdIJ4kYi7Ji+3Anl1OBM4+Q8UKL3R1NGCdSrC1nnnVGt2cQ/UXQBJmTJZSHEnwBu8h74JeKCqwYAWQRWZsTx/5qWg+aO80K1dTn6lYZxJr3/8eSB0g8LrqOI/y9uVcAZIclhPabvsyUDN/hAQywFlsWWYlNnlnryGxn9oz2nr2Rfbh/gSujV237JcmYXUn/gejJoHV8MypSm+CVOWYVBlDe4hkPDJtGfRrJ1GGXmuZNVjZrgNevDsHx7kF0t7/BVYs+HMkOPb8FFg7pl5dbugOg2+aFlyWaJWKZemax5zBVlEDkLhFGydgjK+Rhwnk1WxgOorcDNvBCuP2QQrw5NB79dg4fQ1IWyXwd5kofPf77iR3NL3ErfxR7bFcD4IbwgSSX3UcURukaHF1gG/MsSm1JNKa6I52rk/yiuSOUt7GGDQgeIiKwVJzIM2B88A8pCXXIwd5WqmFyeyxuf0W9j5z4xhGjIO8W0Ed6Kt5Jkj2RRGiHIAOo6F51A2UEJqOmLpJH5DwlNGJ+Py2PyPvJPOnZdQGNPB2Zwf2UTbfdq+Ok0xw7f4EKBZVN9T28MgPcnOWkTmwVFUwas128=
-  skip_cleanup: true
-  on: develop
-  app:
-    develop: saifu-mlm-engine-dev
 
-notifications:
-  email: false
-  slack:
-    secure: Hcv1hPx6hna+A6764ky0AQCeGjfuBckbD8SdOyxRc2GhU6fdhZ6WNpqTyDmfXk/nbskGwD9j8d9HA7qq1ZjdCdboDoVJDm5ltxR6x8QW1QCJPvWbWP2LmQFCWrT1a0BbCXNTh8qeZYuZl5dD6McQSFX2H4lZetKV2SjhDgvpQrSblxCRgNkoTStM+oy1EfF5bjiIqYRMXtn5U57uFaCRjX5lY7eAljt4MDlA1lQiok2Uz+nWguDJu+scbWnkdbRtnAxWHOBl6aHJ+nx3RcDYLZ2w/N5NMZWB3hJ+t9T6ZAem4zr/CSUY5uGgI/EUqw9Tjdme6dc4QwD7s1/12m3vB5LnwD/kvINBlp3W0IhmDYJ5LOtDUBdcM9pBk+MHJhGnETTzGNeucm8yvxGWp+REnJj57o5vxg5nQpO55oQ8JNeKReqdcOl3xIF7b62TZvBSRkUy4rotg+ZhKwRmVHM/k4ZuDkpxVzlRgb6gRP6e7WVF/k7KQ4y4iVpWN2DxYOdgQ4tgk58kAY4KgzJsEFLJ40YQCPL7GC73Wez2qjO/nnWPxT2C4uNE2lwAmBStSh4RNUkPrxGlEE7AM/A21iSog4ygdd8W2vKuyJDQId24snWtdXH2HapauJwxy+mEdf26vFI+VpUjhy/0IDNND5keWoR6gtpaSM/ccjO7UdM1BQY=
+scala:
+- 2.13.2
+
+addons:
+  postgresql: "12.4"
+
+services:
+  - postgresql
+
