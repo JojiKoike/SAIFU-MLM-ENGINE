@@ -6,8 +6,5 @@ scala:
 addons:
   postgresql: "12.4"
 
-services:
-  - postgresql
-
 script:
   psql --version
