@@ -2,9 +2,8 @@ package v1.account
 
 import javax.inject.Inject
 import play.api.Logger
-import play.api.data.Form
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, Result}
+import play.api.mvc.{Action, AnyContent}
 
 import scala.concurrent.{ExecutionContext, Future}
 

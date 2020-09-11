@@ -25,9 +25,13 @@
     <orderEntry type="library" name="sbt: com.google.j2objc:j2objc-annotations:1.1:jar" level="project" />
     <orderEntry type="library" name="sbt: javax.inject:javax.inject:1:jar" level="project" />
     <orderEntry type="library" name="sbt: joda-time:joda-time:2.10.6:jar" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="sbt: net.java.dev.jna:jna:5.3.1:jar" level="project" />
     <orderEntry type="library" name="sbt: org.checkerframework:checker-qual:2.5.2:jar" level="project" />
     <orderEntry type="library" name="sbt: org.codehaus.mojo:animal-sniffer-annotations:1.17:jar" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="sbt: org.jline:jline:3.14.1:jar" level="project" />
     <orderEntry type="library" name="sbt: org.joda:joda-convert:2.2.1:jar" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="sbt: org.scala-lang:scala-compiler:2.13.2:jar" level="project" />
     <orderEntry type="library" name="sbt: org.scala-lang:scala-library:2.13.2:jar" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="sbt: org.scala-lang:scala-reflect:2.13.2:jar" level="project" />
   </component>
 </module>
