@@ -10,4 +10,4 @@ services:
   - postgresql
 
 script:
-  postgres -v
+  psql --version
