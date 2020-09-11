@@ -6,13 +6,6 @@ language: scala
 scala:
   - 2.13.2
 
-addons:
-  postgresql: "12"
-  apt:
-    packages:
-      - postgresql-12
-      - postgresql-client-12
-
 services:
   - postgresql
 
