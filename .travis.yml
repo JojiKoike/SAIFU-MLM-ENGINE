@@ -1,10 +1,12 @@
-od: linux
+os: linux
 dist: focal
 
 language: scala
 
 scala:
   - 2.13.2
+jdk:
+  - openjdk11
 
 services:
   - postgresql
@@ -27,3 +29,10 @@ before_script:
   - psql -c "CREATE DATABASE saifu_mlm_engine_db;" -U postgres
   - psql -c "GRANT ALL PRIVILEGES ON DATABASE saifu_mlm_engine_db TO saifu_mlm_engine_db_user;" -U postgres
   - sbt flyway/flywayMigrate
+
+script:
+  - "sbt clean coverage test"
+
+after_success:
+  - "sbt coverageReport coveralls"
+
