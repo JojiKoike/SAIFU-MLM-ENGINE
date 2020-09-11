@@ -2,11 +2,11 @@ import _root_.slick.codegen.SourceCodeGenerator
 import _root_.slick.{model => m}
 
 lazy val databaseUrl =
-  sys.env.getOrElse("DB_DEFAULT_URL", "jdbc:postgresql:saifu_mlm_engine_db")
+  sys.env.getOrElse("DATABASE_URL", "jdbc:postgresql:saifu_mlm_engine_db")
 lazy val databaseUser =
-  sys.env.getOrElse("DB_DEFAULT_USER", "saifu_mlm_engine_db_user")
+  sys.env.getOrElse("DATABASE_USER", "saifu_mlm_engine_db_user")
 lazy val databasePassword =
-  sys.env.getOrElse("DB_DEFAULT_PASSWORD", "password")
+  sys.env.getOrElse("DATABASE_PASSWORD", "password")
 
 val FlywayVersion = "6.5.5"
 
