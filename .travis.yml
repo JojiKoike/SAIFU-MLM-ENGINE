@@ -23,7 +23,6 @@ before_script:
 - psql -c "GRANT ALL PRIVILEGES ON DATABASE saifu_mlm_engine_db TO saifu_mlm_engine_db_user;"
   -U postgres
 - sbt flyway/flywayMigrate
-
 deploy:
   provider: heroku
   api_key:
@@ -33,3 +32,7 @@ deploy:
     repo: JojiKoike/saifu-mlm-engine
     branch: feature/prepare_cicd
   skip_cleanup: true
+notifications:
+  email: false
+  slack:
+    secure: mJx7xXUiA2nI66pu6d6RClsJsIWpGi1ppkAfY1NldyERDlFX/zahxF1Q4eYvqoFgkXwp2TpfS5fs/thQv0aDgrLXH8m67Flkd8+UuscdBcR/i0Wzo3D3Xv/Bfh4K6w/l9xrLYZc//7EdghsgfrpHqvObrG8M+VB1wz3/TE0hgIbIgnEmHXqfl7hV56t92lJvNpPEH+pr6LwmAsxnzu1+VfjIlIcOV+J6yYh0JJPxf9HfjU+Dan19OkPofmrSLLm7dCQAyQyz7Yxcv+EM/mgtqJow1OoYGm86861m9LAYkhe9wnPQf3ricm1T+TOjdw7tRPsKew1pN+C4SQnl6CMZ6jFs1OmfMjM5WwMbbLn67LVXDPXV0r212VOOEHv6EtchD7XGBX9edaLiLSO6LFtgYqu2/0C21aZ4fPUQYQdrNZT0H4x9xD22Yueutgn3gBsdJfM1Cr+eEjk1+wa06rm9bQ0ZA4nJhHXvL76ggpw/UQuaRQw6KJD/3KTscGZKN/LfkplK/+RUKEZJZjdwn8bF7i8sVKbEH1QfgKV+fxsEtHO5REqdg6dco1IlW9JqQ7DScvaazx2XorZh8xUF+hW+QlfQusuVAUPakFkcYxAiRCjFDpOLD1ddsrEsfgtE7w4fKCYJhfexPSvOjLXo1l3PxdwGHrMR2A5C02KF6sULcD0=
