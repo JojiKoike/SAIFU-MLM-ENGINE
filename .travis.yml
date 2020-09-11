@@ -1,16 +1,38 @@
+os: linux
+dist: focal
 language: scala
 scala:
-- 2.13.0
+- 2.13.2
+jdk:
+- openjdk11
+services:
+- postgresql
+addons:
+  postgresql: '12'
+  apt:
+    packages:
+    - postgresql-12
+    - postgresql-client-12
+before_script:
+- psql --version
+- sudo sed -i -e '/local.*peer/s/postgres/all/' -e 's/peer\|md5/trust/g' /etc/postgresql/*/main/pg_hba.conf
+- sudo service postgresql restart
+- sleep 1
+- psql -c "CREATE ROLE saifu_mlm_engine_db_user LOGIN PASSWORD 'password';" -U postgres
+- psql -c "CREATE DATABASE saifu_mlm_engine_db;" -U postgres
+- psql -c "GRANT ALL PRIVILEGES ON DATABASE saifu_mlm_engine_db TO saifu_mlm_engine_db_user;"
+  -U postgres
+- sbt flyway/flywayMigrate
 deploy:
   provider: heroku
   api_key:
-    secure: BtsEy/Tas5fgHpbF0yHd2AhA8U1E49ax8VtcoMIElhTaZwnGbIuxDwnRsICa5NL82L439T1YlNcWpL/KPqnCIlFkTejVwdIJ4kYi7Ji+3Anl1OBM4+Q8UKL3R1NGCdSrC1nnnVGt2cQ/UXQBJmTJZSHEnwBu8h74JeKCqwYAWQRWZsTx/5qWg+aO80K1dTn6lYZxJr3/8eSB0g8LrqOI/y9uVcAZIclhPabvsyUDN/hAQywFlsWWYlNnlnryGxn9oz2nr2Rfbh/gSujV237JcmYXUn/gejJoHV8MypSm+CVOWYVBlDe4hkPDJtGfRrJ1GGXmuZNVjZrgNevDsHx7kF0t7/BVYs+HMkOPb8FFg7pl5dbugOg2+aFlyWaJWKZemax5zBVlEDkLhFGydgjK+Rhwnk1WxgOorcDNvBCuP2QQrw5NB79dg4fQ1IWyXwd5kofPf77iR3NL3ErfxR7bFcD4IbwgSSX3UcURukaHF1gG/MsSm1JNKa6I52rk/yiuSOUt7GGDQgeIiKwVJzIM2B88A8pCXXIwd5WqmFyeyxuf0W9j5z4xhGjIO8W0Ed6Kt5Jkj2RRGiHIAOo6F51A2UEJqOmLpJH5DwlNGJ+Py2PyPvJPOnZdQGNPB2Zwf2UTbfdq+Ok0xw7f4EKBZVN9T28MgPcnOWkTmwVFUwas128=
+    secure: mJX+TR9ukF2geogGP1C6D6fFJ5TwAHV6L+OAjMxsQpyR2o8cXgFdpoh8YJeoNe8ayLcESQoHDF7EB15HFZtwiwVLBaQNzxDKZfdLr8MKxr11ozvgzzJje9oNgqJbvc2F+rvWgtd/SRKkxnCfRlW9ke1sE6TqY1k4935LDi6HfiMUy4etvHgDT314cSDPGKPZ7PibtB8DPvRei+c+iarMsL9OArlgg5tm3Rhi0qv+hUFcY/+a5TPoUsBsEd93mfw/2dXYKaiuvMevXlffXIdG3U17EaPLEDfnmT3Z13t0qXMju4kN93EMgk7jqurCMaBFGKV9yqCci946LGLuzZre4e0rNAD2WlsD89C3Klch1BjPZL2ePStRO7yjtxUwjn5FQ+qgcCs7fGV6DJV5r1/r2u0qCJAWQTVfbEvFGe3/gteAeKTR2qPBkiDeZHRUyNC+yu1f3QoUk7bjDLPdmQCY7xc89pza/e6ZiRE+TjYSzqOxPzkUxzwFFGDNmS7Xe3U8Td8OdD9YavM2JdKF8vcKCHrKQuQT3yB7WEd4FDx5iNwpxfpaEZLtSoZcjS/Qeua1ynJkfPUXqMgd8TZxJx8m+IxEiN1BgFsSFwUm5mmJnlYlQdpP+a8/QbOJlgWnqgwPuOUzbKULRbBoLYu9Xb7tD/mjBaEE3tpBXWeU0DqiJaA=
+  app: saifu-mlm-engine-dev
+  on:
+    repo: JojiKoike/saifu-mlm-engine
+    branch: develop
   skip_cleanup: true
-  on: develop
-  app:
-    develop: saifu-mlm-engine-dev
-
 notifications:
   email: false
   slack:
-    secure: Hcv1hPx6hna+A6764ky0AQCeGjfuBckbD8SdOyxRc2GhU6fdhZ6WNpqTyDmfXk/nbskGwD9j8d9HA7qq1ZjdCdboDoVJDm5ltxR6x8QW1QCJPvWbWP2LmQFCWrT1a0BbCXNTh8qeZYuZl5dD6McQSFX2H4lZetKV2SjhDgvpQrSblxCRgNkoTStM+oy1EfF5bjiIqYRMXtn5U57uFaCRjX5lY7eAljt4MDlA1lQiok2Uz+nWguDJu+scbWnkdbRtnAxWHOBl6aHJ+nx3RcDYLZ2w/N5NMZWB3hJ+t9T6ZAem4zr/CSUY5uGgI/EUqw9Tjdme6dc4QwD7s1/12m3vB5LnwD/kvINBlp3W0IhmDYJ5LOtDUBdcM9pBk+MHJhGnETTzGNeucm8yvxGWp+REnJj57o5vxg5nQpO55oQ8JNeKReqdcOl3xIF7b62TZvBSRkUy4rotg+ZhKwRmVHM/k4ZuDkpxVzlRgb6gRP6e7WVF/k7KQ4y4iVpWN2DxYOdgQ4tgk58kAY4KgzJsEFLJ40YQCPL7GC73Wez2qjO/nnWPxT2C4uNE2lwAmBStSh4RNUkPrxGlEE7AM/A21iSog4ygdd8W2vKuyJDQId24snWtdXH2HapauJwxy+mEdf26vFI+VpUjhy/0IDNND5keWoR6gtpaSM/ccjO7UdM1BQY=
+    secure: mJx7xXUiA2nI66pu6d6RClsJsIWpGi1ppkAfY1NldyERDlFX/zahxF1Q4eYvqoFgkXwp2TpfS5fs/thQv0aDgrLXH8m67Flkd8+UuscdBcR/i0Wzo3D3Xv/Bfh4K6w/l9xrLYZc//7EdghsgfrpHqvObrG8M+VB1wz3/TE0hgIbIgnEmHXqfl7hV56t92lJvNpPEH+pr6LwmAsxnzu1+VfjIlIcOV+J6yYh0JJPxf9HfjU+Dan19OkPofmrSLLm7dCQAyQyz7Yxcv+EM/mgtqJow1OoYGm86861m9LAYkhe9wnPQf3ricm1T+TOjdw7tRPsKew1pN+C4SQnl6CMZ6jFs1OmfMjM5WwMbbLn67LVXDPXV0r212VOOEHv6EtchD7XGBX9edaLiLSO6LFtgYqu2/0C21aZ4fPUQYQdrNZT0H4x9xD22Yueutgn3gBsdJfM1Cr+eEjk1+wa06rm9bQ0ZA4nJhHXvL76ggpw/UQuaRQw6KJD/3KTscGZKN/LfkplK/+RUKEZJZjdwn8bF7i8sVKbEH1QfgKV+fxsEtHO5REqdg6dco1IlW9JqQ7DScvaazx2XorZh8xUF+hW+QlfQusuVAUPakFkcYxAiRCjFDpOLD1ddsrEsfgtE7w4fKCYJhfexPSvOjLXo1l3PxdwGHrMR2A5C02KF6sULcD0=

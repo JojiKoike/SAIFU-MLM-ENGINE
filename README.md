@@ -28,7 +28,7 @@ docker-compose up -d
 #### Migration
 
 ```sbtshell
-flyway/flywayMigration
+flyway/flywayMigrate
 ```
 
 #### Migration Clear
