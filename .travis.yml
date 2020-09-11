@@ -1,6 +1,3 @@
-os: linux
-dist: focal
-
 language: scala
 
 scala:
@@ -18,4 +15,4 @@ services:
 
 before_script:
   - psql --version
-  - psql -U postgres -c "CREATE ROLE saifu_mlm_engin_db_user LOGIN PASSWORD 'password';"
+  - psql -c "CREATE ROLE saifu_mlm_engin_db_user LOGIN PASSWORD 'password';" -U postgres
