@@ -39,7 +39,10 @@ ThisBuild / scalacOptions ++= Seq(
 lazy val flyway = (project in file("modules/flyway"))
   .enablePlugins(FlywayPlugin)
   .settings(
-    libraryDependencies += "org.flywaydb" % "flyway-core" % FlywayVersion,
+    libraryDependencies ++= Seq(
+        "org.flywaydb"   % "flyway-core" % FlywayVersion,
+        "org.postgresql" % "postgresql"  % "42.2.16"
+      ),
     flywayLocations := Seq("classpath:db/migration"),
     flywayUrl := databaseUrl,
     flywayUser := databaseUser,
