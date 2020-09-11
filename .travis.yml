@@ -33,5 +33,3 @@ deploy:
     repo: JojiKoike/saifu-mlm-engine
     branch: feature/prepare_cicd
   skip_cleanup: true
-  run:
-    - "sbt flyway/flywayMigrate"
