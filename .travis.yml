@@ -30,7 +30,7 @@ deploy:
   app: saifu-mlm-engine-dev
   on:
     repo: JojiKoike/saifu-mlm-engine
-    branch: feature/prepare_cicd
+    branch: develop
   skip_cleanup: true
 notifications:
   email: false
