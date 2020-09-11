@@ -16,5 +16,5 @@ addons:
 services:
   - postgresql
 
-script:
-  psql --version
+before_script:
+  - psql -c "CREATE ROLE saifu_mlm_engin_db_user LOGIN PASSWORD 'password';" -U postgres
