@@ -1,0 +1,10 @@
+FROM postgres:12.4
+
+# lang settings
+RUN localedef -i ja_JP -c -f UTF-8 -A /usr/share/locale/locale.alias ja_JP.UTF-8
+ENV LANG ja_JP.UTF8
+
+# Initialize DB
+COPY ./init/*.sql /docker-entrypoint-initdb.d/
+COPY ./init/createExtension.sh /docker-entrypoint-initdb.d/
+RUN chmod 755 /docker-entrypoint-initdb.d/createExtension.sh
