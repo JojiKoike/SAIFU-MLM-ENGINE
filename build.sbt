@@ -101,6 +101,8 @@ lazy val root = (project in file("."))
     name := """saifu-mlm-engine""",
     libraryDependencies ++= Seq(
         guice,
+        ws,
+        "org.abstractj.kalium"    % "kalium"                   % "0.8.0",
         "net.logstash.logback"    % "logstash-logback-encoder" % "6.2",
         "org.postgresql"          % "postgresql"               % "42.2.16",
         "org.flywaydb"            % "flyway-core"              % FlywayVersion % Test,
