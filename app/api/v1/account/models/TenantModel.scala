@@ -1,4 +1,4 @@
-package api.v1.account
+package api.v1.account.models
 
 import play.api.data.Form
 import play.api.data.Forms._
@@ -7,6 +7,7 @@ import play.api.data.Forms._
 case class DeleteTenantInput(id: String)
 case class CreateTenantInput(name: String, explain: String)
 case class UpdateTenantInput(id: String, name: String, explain: String)
+
 object Tenant {
   val createTenantInput: Form[CreateTenantInput] = Form {
     mapping(

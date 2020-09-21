@@ -1,26 +1,27 @@
-package api.v1.account
+package api.v1.account.routers
 
+import api.v1.account.controllers.TenantController
 import javax.inject.Inject
 import play.api.routing.Router.Routes
 import play.api.routing.SimpleRouter
 import play.api.routing.sird._
 
-class AccountRouter @Inject() (controller: TenantController) extends SimpleRouter {
+class TenantRouter @Inject() (controller: TenantController) extends SimpleRouter {
 
   override def routes: Routes = {
-    case GET(p"/tenant/") =>
+    case GET(p"/") =>
       controller.index
 
-    case GET(p"/tenant/$id") =>
+    case GET(p"/$id") =>
       controller.show(id)
 
-    case POST(p"/tenant/") =>
+    case POST(p"/") =>
       controller.process
 
-    case PUT(p"/tenant/") =>
+    case PUT(p"/") =>
       controller.update
 
-    case DELETE(p"/tenant/") =>
+    case DELETE(p"/") =>
       controller.delete
   }
 }
