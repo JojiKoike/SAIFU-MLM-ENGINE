@@ -6,7 +6,8 @@ import javax.inject.{Inject, Provider, Singleton}
 import play.api.inject.ApplicationLifecycle
 import play.api.libs.concurrent.AkkaGuiceSupport
 import play.api.{Configuration, Environment}
-import services.session.{ClusterSystem, SessionCache}
+import services.cluster.ClusterSystem
+import services.session.SessionCache
 import slick.jdbc.JdbcBackend.Database
 
 import scala.concurrent.Future

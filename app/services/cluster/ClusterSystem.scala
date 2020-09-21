@@ -1,4 +1,4 @@
-package services.session
+package services.cluster
 
 import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
