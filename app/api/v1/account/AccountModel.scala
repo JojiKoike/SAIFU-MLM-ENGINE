@@ -1,4 +1,4 @@
-package v1.account
+package api.v1.account
 
 import play.api.data.Form
 import play.api.data.Forms._

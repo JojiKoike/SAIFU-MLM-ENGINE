@@ -1,4 +1,4 @@
-package v1.account
+package api.v1.account
 
 import com.saifu_mlm.engine.account.{Tenant, TenantDAO}
 import javax.inject.Inject

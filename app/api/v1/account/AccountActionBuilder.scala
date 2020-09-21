@@ -1,4 +1,4 @@
-package v1.account
+package api.v1.account
 
 import javax.inject.Inject
 import net.logstash.logback.marker.LogstashMarker

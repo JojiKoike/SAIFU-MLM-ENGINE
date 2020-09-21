@@ -1,4 +1,4 @@
-package v1.account
+package api.v1.account
 
 import org.scalatestplus.play._
 import org.scalatestplus.play.guice._
@@ -19,7 +19,7 @@ class AccountRouterSpec extends PlaySpec with GuiceOneAppPerTest {
       val name    = "TestTenant"
       val explain = "TestTenantExplain"
       "Create Tenant" in {
-        val request = FakeRequest(POST, "/v1/account/tenant/")
+        val request = FakeRequest(POST, "/api.v1/account/tenant/")
           .withHeaders(HOST -> "localhost:9000")
           .withJsonBody(Json.obj("name" -> name, "explain" -> explain))
           .withCSRFToken
@@ -31,7 +31,7 @@ class AccountRouterSpec extends PlaySpec with GuiceOneAppPerTest {
         id = tenant.id
       }
       "Read Tenant" in {
-        val request = FakeRequest(GET, s"/v1/account/tenant/$id")
+        val request = FakeRequest(GET, s"/api.v1/account/tenant/$id")
           .withHeaders(HOST -> "localhost:9000")
           .withCSRFToken
         val result: Future[Result] = route(app, request).get
@@ -41,7 +41,7 @@ class AccountRouterSpec extends PlaySpec with GuiceOneAppPerTest {
         status(result) mustBe OK
       }
       "Index Tenant" in {
-        val request = FakeRequest(GET, "/v1/account/tenant/")
+        val request = FakeRequest(GET, "/api.v1/account/tenant/")
           .withHeaders(HOST -> "localhost:9000")
           .withCSRFToken
         val result: Future[Result]       = route(app, request).get
@@ -51,7 +51,7 @@ class AccountRouterSpec extends PlaySpec with GuiceOneAppPerTest {
       "Update Tenant" in {
         val newName    = "NewTenant"
         val newExplain = "NewTenant Explain"
-        val request = FakeRequest(PUT, "/v1/account/tenant/")
+        val request = FakeRequest(PUT, "/api.v1/account/tenant/")
           .withHeaders(HOST -> "localhost:9000")
           .withJsonBody(Json.obj("id" -> id, "name" -> newName, "explain" -> newExplain))
           .withCSRFToken
@@ -59,7 +59,7 @@ class AccountRouterSpec extends PlaySpec with GuiceOneAppPerTest {
         status(result) mustBe NO_CONTENT
       }
       "Delete Tenant" in {
-        val request = FakeRequest(DELETE, "/v1/account/tenant/")
+        val request = FakeRequest(DELETE, "/api.v1/account/tenant/")
           .withHeaders(HOST -> "localhost:9000")
           .withJsonBody(Json.obj("id" -> id))
           .withCSRFToken

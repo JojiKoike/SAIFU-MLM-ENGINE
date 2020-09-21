@@ -4,4 +4,4 @@
 # ~~~~
 
 # An example controller showing a sample home page
-->          /v1/account     v1.account.AccountRouter
+->          /v1/account     api.v1.account.AccountRouter
