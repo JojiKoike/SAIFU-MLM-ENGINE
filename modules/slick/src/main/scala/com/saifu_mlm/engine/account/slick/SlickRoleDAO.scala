@@ -4,20 +4,21 @@ import java.util.UUID
 
 import com.saifu_mlm.engine.account.{Role, RoleDAO}
 import com.saifu_mlm.infrastructure.db.slick.Tables
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import org.joda.time.DateTime
 import slick.jdbc.JdbcBackend.Database
 import slick.jdbc.JdbcProfile
 
 import scala.concurrent.{ExecutionContext, Future}
 
+@Singleton
 class SlickRoleDAO @Inject() (db: Database)(implicit ec: ExecutionContext) extends RoleDAO with Tables {
 
   override val profile: JdbcProfile = _root_.slick.jdbc.PostgresProfile
 
   import profile.api._
 
-  private val queryById = Compiled((id: Rep[UUID]) => MRoles.filter(_.id == id).filter(!_.deleteFlag))
+  private val queryById = Compiled((id: Rep[UUID]) => MRoles.filter(_.id === id).filter(!_.deleteFlag))
 
   override def lookUp(id: String): Future[Option[Role]] = {
     val f: Future[Option[MRolesRow]] =
