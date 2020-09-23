@@ -1,6 +1,6 @@
 import com.google.inject.AbstractModule
-import com.saifu_mlm.engine.account.TenantDAO
-import com.saifu_mlm.engine.account.slick.SlickTenantDAO
+import com.saifu_mlm.engine.account.{RoleDAO, TenantDAO}
+import com.saifu_mlm.engine.account.slick.{SlickRoleDAO, SlickTenantDAO}
 import com.typesafe.config.Config
 import javax.inject.{Inject, Provider, Singleton}
 import play.api.inject.ApplicationLifecycle
@@ -16,7 +16,9 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
   override def configure(): Unit = {
     bind(classOf[Database]).toProvider(classOf[DatabaseProvider])
     bind(classOf[TenantDAO]).to(classOf[SlickTenantDAO])
+    bind(classOf[RoleDAO]).to(classOf[SlickRoleDAO])
     bind(classOf[TenantDAOCloseHook]).asEagerSingleton()
+    bind(classOf[RoleDAOCloseHook]).asEagerSingleton()
     bind(classOf[ClusterSystem]).asEagerSingleton()
     bindTypedActor(SessionCache(), "replicatedCache")
   }
@@ -27,6 +29,12 @@ class DatabaseProvider @Inject() (config: Config) extends Provider[Database] {
 }
 
 class TenantDAOCloseHook @Inject() (dao: TenantDAO, lifeCycle: ApplicationLifecycle) {
+  lifeCycle.addStopHook { () =>
+    Future.successful(dao.close())
+  }
+}
+
+class RoleDAOCloseHook @Inject() (dao: RoleDAO, lifeCycle: ApplicationLifecycle) {
   lifeCycle.addStopHook { () =>
     Future.successful(dao.close())
   }

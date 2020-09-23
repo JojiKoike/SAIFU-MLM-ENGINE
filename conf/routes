@@ -5,3 +5,4 @@
 
 # An example controller showing a sample home page
 ->          /v1/account/tenant     api.v1.account.routers.TenantRouter
+->          /v1/account/role       api.v1.account.routers.RoleRouter
