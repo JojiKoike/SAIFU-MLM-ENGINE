@@ -1,7 +1,7 @@
 package services.encryption
 
 import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneAppPerTest
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{Format, Json}
 
 case class Foo(name: String, age: Int)
@@ -10,8 +10,7 @@ object Foo {
   implicit val format: Format[Foo] = Json.format[Foo]
 }
 
-class EncryptionServiceTest extends PlaySpec with GuiceOneAppPerTest {
-
+class EncryptionServiceTest extends PlaySpec with GuiceOneAppPerSuite {
   "encryption info service" should {
     "encrypt data" in {
       val service      = app.injector.instanceOf(classOf[EncryptionService])
@@ -22,5 +21,4 @@ class EncryptionServiceTest extends PlaySpec with GuiceOneAppPerTest {
       decrypted mustBe Some(Foo(name = "george", age = 40))
     }
   }
-
 }

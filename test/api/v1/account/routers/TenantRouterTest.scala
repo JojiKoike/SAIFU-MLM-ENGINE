@@ -11,8 +11,7 @@ import play.api.test.Helpers._
 
 import scala.concurrent.Future
 
-class TenantRouterTest extends PlaySpec with GuiceOneAppPerTest {
-  /*
+class TenantRouterTest extends PlaySpec with GuiceOneAppPerSuite {
   "TenantRouter" should {
 
     "CRUD tenant" should {
@@ -69,6 +68,4 @@ class TenantRouterTest extends PlaySpec with GuiceOneAppPerTest {
       }
     }
   }
-
-   */
 }
