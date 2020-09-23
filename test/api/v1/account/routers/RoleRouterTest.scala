@@ -16,7 +16,6 @@ import scala.concurrent.Future
 
 class RoleRouterTest extends PlaySpec with GuiceOneAppPerSuite {
   "RoleRouter" should {
-    val conf = ConfigFactory.parseFile(new File())
     "CRUD role" should {
       var id      = ""
       val name    = "TestRole"
