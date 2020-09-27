@@ -1,6 +1,6 @@
 import com.google.inject.AbstractModule
-import com.saifu_mlm.engine.account.{RoleDAO, TenantDAO}
-import com.saifu_mlm.engine.account.slick.{SlickRoleDAO, SlickTenantDAO}
+import com.saifu_mlm.engine.account.{RoleDAO, TenantDAO, UserDAO}
+import com.saifu_mlm.engine.account.slick.{SlickRoleDAO, SlickTenantDAO, SlickUserDAO}
 import com.typesafe.config.Config
 import javax.inject.{Inject, Provider, Singleton}
 import play.api.inject.ApplicationLifecycle
@@ -17,8 +17,8 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
     bind(classOf[Database]).toProvider(classOf[DatabaseProvider])
     bind(classOf[TenantDAO]).to(classOf[SlickTenantDAO])
     bind(classOf[RoleDAO]).to(classOf[SlickRoleDAO])
-    bind(classOf[TenantDAOCloseHook]).asEagerSingleton()
-    bind(classOf[RoleDAOCloseHook]).asEagerSingleton()
+    bind(classOf[UserDAO]).to(classOf[SlickUserDAO])
+    bind(classOf[DAOCloseHook]).asEagerSingleton()
     bind(classOf[ClusterSystem]).asEagerSingleton()
     bindTypedActor(SessionCache(), "replicatedCache")
   }
@@ -28,14 +28,17 @@ class DatabaseProvider @Inject() (config: Config) extends Provider[Database] {
   lazy val get = Database.forConfig("saifu_mlm_engine.database", config)
 }
 
-class TenantDAOCloseHook @Inject() (dao: TenantDAO, lifeCycle: ApplicationLifecycle) {
+class DAOCloseHook @Inject() (
+    tenantDAO: TenantDAO,
+    roleDAO: RoleDAO,
+    userDAO: UserDAO,
+    lifeCycle: ApplicationLifecycle
+) {
   lifeCycle.addStopHook { () =>
-    Future.successful(dao.close())
-  }
-}
-
-class RoleDAOCloseHook @Inject() (dao: RoleDAO, lifeCycle: ApplicationLifecycle) {
-  lifeCycle.addStopHook { () =>
-    Future.successful(dao.close())
+    Future.successful {
+      tenantDAO.close()
+      roleDAO.close()
+      userDAO.close()
+    }
   }
 }

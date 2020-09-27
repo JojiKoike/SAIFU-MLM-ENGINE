@@ -4,7 +4,7 @@ import java.util.UUID
 
 import com.saifu_mlm.engine.account.{User, UserDAO}
 import com.saifu_mlm.infrastructure.db.slick.Tables
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import org.joda.time.DateTime
 import slick.jdbc.JdbcBackend.Database
 import slick.jdbc.JdbcProfile

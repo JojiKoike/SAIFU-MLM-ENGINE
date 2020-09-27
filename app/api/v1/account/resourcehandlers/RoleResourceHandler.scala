@@ -43,7 +43,11 @@ class RoleResourceHandler @Inject() (
     val roleFuture = roleDAO.lookUp(updateRoleInput.id)
     roleFuture.map { maybeRoleData =>
       maybeRoleData.map { roleData =>
-        val modRoleData = roleData.copy(name = updateRoleInput.name, explain = Option(updateRoleInput.explain))
+        val modRoleData = roleData.copy(
+          name = updateRoleInput.name,
+          explain = Option(updateRoleInput.explain),
+          updated = Option(DateTime.now())
+        )
         roleDAO.update(modRoleData)
         createRoleResource(modRoleData)
       }

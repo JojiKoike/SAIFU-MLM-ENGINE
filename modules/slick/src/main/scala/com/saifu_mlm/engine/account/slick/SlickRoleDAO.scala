@@ -34,7 +34,7 @@ class SlickRoleDAO @Inject() (db: Database)(implicit ec: ExecutionContext) exten
   override def update(role: Role): Future[Int] = {
     db.run(
       queryById(role.id)
-        .update(roleToRolesRow(role.copy(updated = Option(DateTime.now()))))
+        .update(roleToRolesRow(role))
     )
   }
 
@@ -46,7 +46,7 @@ class SlickRoleDAO @Inject() (db: Database)(implicit ec: ExecutionContext) exten
 
   override def create(role: Role): Future[Int] = {
     db.run(
-      MRoles += roleToRolesRow(role.copy(created = DateTime.now()))
+      MRoles += roleToRolesRow(role)
     )
   }
 

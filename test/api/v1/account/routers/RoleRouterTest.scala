@@ -1,16 +1,13 @@
 package api.v1.account.routers
 
-import java.io.File
-
 import api.v1.account.resourcehandlers.RoleResource
-import com.typesafe.config.ConfigFactory
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.CSRFTokenHelper.CSRFRequest
-import play.api.test._
 import play.api.test.Helpers._
+import play.api.test._
 
 import scala.concurrent.Future
 
