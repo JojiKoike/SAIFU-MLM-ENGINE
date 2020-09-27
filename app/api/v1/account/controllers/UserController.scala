@@ -2,7 +2,7 @@ package api.v1.account.controllers
 
 import api.v1.account.models.User
 import api.v1.account.resourcehandlers.{UserResource, UserResourceHandler}
-import api.v1.common.{RequestMarkerContext, SaifuDefaultActionBuilder}
+import api.v1.common.{RequestMarkerContext, SESSION_ID, SaifuDefaultActionBuilder, SessionGenerator}
 import javax.inject.Inject
 import play.api.Logger
 import play.api.http.FileMimeTypes
@@ -10,10 +10,13 @@ import play.api.i18n.{Langs, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc._
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
-class UserController @Inject() (cc: UserControllerComponents)(implicit ec: ExecutionContext)
-    extends UserBaseController(cc) {
+class UserController @Inject() (cc: UserControllerComponents, sessionGenerator: SessionGenerator)(implicit
+    ec: ExecutionContext
+) extends UserBaseController(cc) {
 
   private val logger = Logger(getClass)
 
@@ -56,8 +59,22 @@ class UserController @Inject() (cc: UserControllerComponents)(implicit ec: Execu
         },
         success => {
           userResourceHandler.login(success).map {
-            case user @ Some(UserResource(id, tenantID, roleID, loginID, name, eMail)) => Ok(Json.toJson(user))
-            case None                                                                  => Unauthorized
+            case user @ Some(UserResource(id, tenantID, roleID, loginID, name, eMail)) =>
+              // Get Session ID and Encrypted Cookie
+              val f = sessionGenerator
+                .createSession(UserResource(id, tenantID, roleID, loginID, name, eMail))
+              // TODO Delete JSON Output, UserResource must be encrypted.
+              Await.ready(f, Duration.Inf)
+              f.value.get match {
+                case Success(sessionData) =>
+                  Ok(Json.toJson(user))
+                    .withSession(request.session + (SESSION_ID -> sessionData._1))
+                    .withCookies(sessionData._2)
+                case Failure(ex) =>
+                  logger.error(ex.getMessage)
+                  Unauthorized
+              }
+            case _ => Unauthorized
           }
         }
       )
