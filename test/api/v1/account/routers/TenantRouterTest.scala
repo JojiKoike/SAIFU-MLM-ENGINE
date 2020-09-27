@@ -1,5 +1,6 @@
-package v1.account
+package api.v1.account.routers
 
+import api.v1.account.resourcehandlers.TenantResource
 import org.scalatestplus.play._
 import org.scalatestplus.play.guice._
 import play.api.libs.json.Json
@@ -10,9 +11,8 @@ import play.api.test.Helpers._
 
 import scala.concurrent.Future
 
-class AccountRouterSpec extends PlaySpec with GuiceOneAppPerTest {
-
-  "AccountRouter" should {
+class TenantRouterTest extends PlaySpec with GuiceOneAppPerSuite {
+  "TenantRouter" should {
 
     "CRUD tenant" should {
       var id      = ""

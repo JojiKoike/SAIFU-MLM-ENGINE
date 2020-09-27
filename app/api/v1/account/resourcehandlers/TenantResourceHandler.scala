@@ -1,5 +1,6 @@
-package v1.account
+package api.v1.account.resourcehandlers
 
+import api.v1.account.models.{CreateTenantInput, DeleteTenantInput, UpdateTenantInput}
 import com.saifu_mlm.engine.account.{Tenant, TenantDAO}
 import javax.inject.Inject
 import org.joda.time.DateTime

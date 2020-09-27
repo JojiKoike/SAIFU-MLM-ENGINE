@@ -1,3 +1,4 @@
+import play.core.PlayVersion.akkaVersion
 import _root_.slick.codegen.SourceCodeGenerator
 import _root_.slick.{model => m}
 
@@ -101,6 +102,11 @@ lazy val root = (project in file("."))
     name := """saifu-mlm-engine""",
     libraryDependencies ++= Seq(
         guice,
+        ws,
+        "org.abstractj.kalium"    % "kalium"                   % "0.8.0",
+        "org.mindrot"             % "jbcrypt"                  % "0.4",
+        "com.typesafe.akka"      %% "akka-distributed-data"    % akkaVersion,
+        "com.typesafe.akka"      %% "akka-cluster-typed"       % akkaVersion,
         "net.logstash.logback"    % "logstash-logback-encoder" % "6.2",
         "org.postgresql"          % "postgresql"               % "42.2.16",
         "org.flywaydb"            % "flyway-core"              % FlywayVersion % Test,

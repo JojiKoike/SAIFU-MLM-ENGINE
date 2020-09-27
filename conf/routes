@@ -4,4 +4,6 @@
 # ~~~~
 
 # An example controller showing a sample home page
-->          /v1/account     v1.account.AccountRouter
+->          /v1/account/tenant     api.v1.account.routers.TenantRouter
+->          /v1/account/role       api.v1.account.routers.RoleRouter
+->          /v1/account/user       api.v1.account.routers.UserRouter
