@@ -27,6 +27,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 package object common {
 
+  val ERROR_CODE = -1
+
   val SESSION_ID = "sessionId"
 
   val SESSION_DATA_COOKIE_NAME = "sessionData"
