@@ -34,12 +34,12 @@ flyway/flywayMigrate
 #### Migration Clear
 
 ```sbtshell
-flyway/flywayClear
+flyway/flywayClean
 ```
 
 #### Migration Info
 ```sbtshell
-flyway/flywayInfo
+flywa/flywayInfo
 ```
 
 #### Migration Target DB URL
