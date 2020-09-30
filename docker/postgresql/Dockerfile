@@ -6,5 +6,4 @@ ENV LANG ja_JP.UTF8
 
 # Initialize DB
 COPY ./init/*.sql /docker-entrypoint-initdb.d/
-COPY ./init/createExtension.sh /docker-entrypoint-initdb.d/
 RUN chmod 755 /docker-entrypoint-initdb.d/createExtension.sh
