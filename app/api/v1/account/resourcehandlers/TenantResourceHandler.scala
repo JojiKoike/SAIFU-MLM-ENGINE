@@ -1,5 +1,7 @@
 package api.v1.account.resourcehandlers
 
+import java.util.UUID
+
 import api.v1.account.models.{CreateTenantInput, DeleteTenantInput, UpdateTenantInput}
 import com.saifu_mlm.engine.account.{Tenant, TenantDAO}
 import javax.inject.Inject
@@ -19,7 +21,7 @@ class TenantResourceHandler @Inject() (
 )(implicit ec: ExecutionContext) {
   def create(createTenantInput: CreateTenantInput)(implicit mc: MarkerContext): Future[TenantResource] = {
     tenantDAO
-      .create(Tenant("", createTenantInput.name, Option(createTenantInput.explain)))
+      .create(Tenant(UUID.randomUUID.toString, createTenantInput.name, Option(createTenantInput.explain)))
       .map(createTenantResource)
   }
 

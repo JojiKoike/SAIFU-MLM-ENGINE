@@ -1,5 +1,7 @@
 package api.v1.account.resourcehandlers
 
+import java.util.UUID
+
 import api.v1.account.models.{CreateRoleInput, DeleteRoleInput, UpdateRoleInput}
 import com.saifu_mlm.engine.account.{Role, RoleDAO}
 import javax.inject.Inject
@@ -19,7 +21,7 @@ class RoleResourceHandler @Inject() (
 )(implicit ec: ExecutionContext) {
   def create(createRoleInput: CreateRoleInput)(implicit mc: MarkerContext): Future[RoleResource] = {
     roleDAO
-      .create(Role("", createRoleInput.name, Option(createRoleInput.explain)))
+      .create(Role(UUID.randomUUID.toString, createRoleInput.name, Option(createRoleInput.explain)))
       .map(createRoleResource)
   }
 

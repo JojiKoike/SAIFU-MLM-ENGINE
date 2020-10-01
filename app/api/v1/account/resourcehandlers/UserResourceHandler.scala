@@ -1,5 +1,7 @@
 package api.v1.account.resourcehandlers
 
+import java.util.UUID
+
 import api.v1.account.models.{CreateUserInput, DeleteUserInput, LoginInput}
 import api.v1.common.ERROR_CODE
 import com.github.t3hnar.bcrypt._
@@ -28,7 +30,7 @@ class UserResourceHandler @Inject() (
       case Success(encryptedPassword) =>
         userDAO.create(
           User(
-            "",
+            id = UUID.randomUUID.toString,
             tenantId = createUserInput.tenantId,
             roleId = createUserInput.roleId,
             loginId = createUserInput.loginId,

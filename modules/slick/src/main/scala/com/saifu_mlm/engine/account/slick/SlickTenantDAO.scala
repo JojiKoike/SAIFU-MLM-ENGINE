@@ -51,7 +51,8 @@ class SlickTenantDAO @Inject() (db: Database)(implicit ec: ExecutionContext) ext
   override def create(tenant: Tenant): Future[Tenant] = {
     db.run(
       (MTenants
-        .map(item => (item.name, item.explain)) += (tenant.name, tenant.explain))
+        .map(item => (item.id, item.name, item.explain))
+        += (string2UUID(tenant.id), tenant.name, tenant.explain))
         .andThen(
           MTenants
             .filter(_.name === tenant.name)
