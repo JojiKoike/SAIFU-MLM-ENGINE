@@ -3,9 +3,9 @@ package com.saifu_mlm.engine.account.slick
 import java.util.UUID
 
 import com.saifu_mlm.engine.account.{Role, RoleDAO}
+import com.saifu_mlm.engine.common.string2UUID
 import com.saifu_mlm.infrastructure.db.slick.Tables
 import javax.inject.{Inject, Singleton}
-import org.joda.time.DateTime
 import slick.jdbc.JdbcBackend.Database
 import slick.jdbc.JdbcProfile
 
@@ -18,35 +18,48 @@ class SlickRoleDAO @Inject() (db: Database)(implicit ec: ExecutionContext) exten
 
   import profile.api._
 
-  private val queryById = Compiled((id: Rep[UUID]) => MRoles.filter(_.id === id).filter(!_.deleteFlag))
+  private val queryById = (id: Rep[UUID]) => MRoles.filter(_.id === id).filter(!_.deleteFlag)
 
   override def lookUp(id: String): Future[Option[Role]] = {
-    val f: Future[Option[MRolesRow]] =
-      db.run(queryById(UUID.fromString(id)).result.headOption)
-    f.map(maybeRow => maybeRow.map(mRolesRowToRole))
+    db.run(queryById(string2UUID(id)).result.headOption)
+      .map(maybeRow => maybeRow.map(mRolesRowToRole))
   }
 
   override def all: Future[Seq[Role]] = {
-    val f = db.run(Compiled(MRoles.filter(!_.deleteFlag)).result)
-    f.map(seq => seq.map(mRolesRowToRole))
+    db.run(MRoles.filter(!_.deleteFlag).result)
+      .map(results => results.map(mRolesRowToRole))
   }
 
   override def update(role: Role): Future[Int] = {
     db.run(
-      queryById(role.id)
-        .update(roleToRolesRow(role))
+      queryById(string2UUID(role.id))
+        .map(target => (target.name, target.explain))
+        .update(role.name, role.explain)
     )
   }
 
   override def delete(id: String): Future[Int] = {
     db.run(
-      queryById(UUID.fromString(id)).delete
+      queryById(string2UUID(id))
+        .map(target => target.deleteFlag)
+        .update(true)
+        .transactionally
     )
   }
 
-  override def create(role: Role): Future[Int] = {
+  override def create(role: Role): Future[Role] = {
     db.run(
-      MRoles += roleToRolesRow(role)
+      (MRoles
+        .map(item => (item.name, item.explain))
+        += (role.name, role.explain))
+        .andThen(
+          MRoles
+            .filter(_.name === role.name)
+            .result
+            .head
+        )
+        .transactionally
+        .map(mRolesRowToRole)
     )
   }
 
@@ -54,18 +67,11 @@ class SlickRoleDAO @Inject() (db: Database)(implicit ec: ExecutionContext) exten
     Future.successful(db.close())
   }
 
-  private def roleToRolesRow(role: Role): MRolesRow = {
-    MRolesRow(role.id, role.name, role.explain, role.delete_flag, role.created, role.updated)
-  }
-
   private def mRolesRowToRole(mRolesRow: MRolesRow): Role = {
     Role(
-      mRolesRow.id,
+      mRolesRow.id.toString,
       mRolesRow.name,
-      mRolesRow.explain,
-      mRolesRow.deleteFlag,
-      mRolesRow.created,
-      mRolesRow.updated
+      mRolesRow.explain
     )
   }
 

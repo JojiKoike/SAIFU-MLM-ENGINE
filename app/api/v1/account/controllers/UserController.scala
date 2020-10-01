@@ -2,7 +2,13 @@ package api.v1.account.controllers
 
 import api.v1.account.models.User
 import api.v1.account.resourcehandlers.{UserResource, UserResourceHandler}
-import api.v1.common.{RequestMarkerContext, SESSION_ID, SaifuDefaultActionBuilder, SessionGenerator}
+import api.v1.common.{
+  RequestMarkerContext,
+  SESSION_ID,
+  SaifuDefaultActionBuilder,
+  SaifuDefaultRequest,
+  SessionGenerator
+}
 import javax.inject.Inject
 import play.api.Logger
 import play.api.http.FileMimeTypes
@@ -14,21 +20,28 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
-class UserController @Inject() (cc: UserControllerComponents, sessionGenerator: SessionGenerator)(implicit
-    ec: ExecutionContext
-) extends UserBaseController(cc) {
+class UserController @Inject() (cc: UserControllerComponents)(implicit ec: ExecutionContext)
+    extends UserBaseController(cc) {
 
   private val logger = Logger(getClass)
 
   def process: Action[AnyContent] =
-    saifuDefaultAction.async { implicit request =>
+    saifuDefaultAction.async { implicit request: SaifuDefaultRequest[AnyContent] =>
       logger.trace("process: ")
+      // TODO Sample Code for Encrypted Cookie Data
+      request.userResource match {
+        case Some(userResource) =>
+          userResource.id
+        case None =>
+          println("None")
+      }
       User.createUserInput.bindFromRequest.fold(
         failure => {
           Future.successful(BadRequest(failure.errorsAsJson))
         },
         success => {
           userResourceHandler.create(success).map { _ =>
+            // TODO Implement Failure Case
             Created
           }
         }
@@ -44,6 +57,7 @@ class UserController @Inject() (cc: UserControllerComponents, sessionGenerator: 
         },
         success => {
           userResourceHandler.delete(success).map { _ =>
+            // TODO Implement Failure Case
             NoContent
           }
         }
@@ -59,14 +73,15 @@ class UserController @Inject() (cc: UserControllerComponents, sessionGenerator: 
         },
         success => {
           userResourceHandler.login(success).map {
+            // Authentication Success
             case user @ Some(UserResource(id, tenantID, roleID, loginID, name, eMail)) =>
               // Get Session ID and Encrypted Cookie
               val f = sessionGenerator
                 .createSession(UserResource(id, tenantID, roleID, loginID, name, eMail))
-              // TODO Delete JSON Output, UserResource must be encrypted.
               Await.ready(f, Duration.Inf)
               f.value.get match {
                 case Success(sessionData) =>
+                  // TODO Delete JSON Output, UserResource must be encrypted.
                   Ok(Json.toJson(user))
                     .withSession(request.session + (SESSION_ID -> sessionData._1))
                     .withCookies(sessionData._2)
@@ -74,6 +89,7 @@ class UserController @Inject() (cc: UserControllerComponents, sessionGenerator: 
                   logger.error(ex.getMessage)
                   Unauthorized
               }
+            // Authentication Failure
             case _ => Unauthorized
           }
         }
@@ -89,7 +105,8 @@ case class UserControllerComponents @Inject() (
     messagesApi: MessagesApi,
     langs: Langs,
     fileMimeTypes: FileMimeTypes,
-    executionContext: ExecutionContext
+    executionContext: ExecutionContext,
+    sessionGenerator: SessionGenerator
 ) extends ControllerComponents
 
 class UserBaseController @Inject() (ucc: UserControllerComponents) extends BaseController with RequestMarkerContext {
@@ -98,4 +115,6 @@ class UserBaseController @Inject() (ucc: UserControllerComponents) extends BaseC
   def saifuDefaultAction: SaifuDefaultActionBuilder = ucc.saifuDefaultActionBuilder
 
   def userResourceHandler: UserResourceHandler = ucc.userResourceHandler
+
+  def sessionGenerator: SessionGenerator = ucc.sessionGenerator
 }

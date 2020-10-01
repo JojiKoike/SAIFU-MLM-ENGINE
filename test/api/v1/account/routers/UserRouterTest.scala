@@ -9,7 +9,9 @@ import play.api.test.CSRFTokenHelper.CSRFRequest
 import play.api.test._
 import play.api.test.Helpers._
 
-import scala.concurrent.Future
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
+import scala.util.Success
 
 class UserRouterTest extends PlaySpec with GuiceOneAppPerSuite {
   "UserRouter" should {
@@ -72,7 +74,14 @@ class UserRouterTest extends PlaySpec with GuiceOneAppPerSuite {
           )
           .withCSRFToken
         val result: Future[Result] = route(app, request).get
-        val user: UserResource     = Json.fromJson[UserResource](contentAsJson(result)).get
+        Await.ready(result, Duration.Inf)
+        result.value.get match {
+          case Success(result) =>
+            println(result.newSession.get.data)
+            println(result.newCookies.head.name)
+            println(result.newCookies.head.value)
+        }
+        val user: UserResource = Json.fromJson[UserResource](contentAsJson(result)).get
         status(result) mustBe OK
         userID = user.id
       }

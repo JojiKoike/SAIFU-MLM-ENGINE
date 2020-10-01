@@ -19,7 +19,7 @@ trait TenantDAO {
 
   def delete(id: String): Future[Int]
 
-  def create(tenant: Tenant): Future[Int]
+  def create(tenant: Tenant): Future[Tenant]
 
   def close(): Future[Unit]
 
@@ -35,10 +35,7 @@ trait TenantDAO {
   * @param updated updated date time
   */
 case class Tenant(
-    id: UUID,
+    id: String,
     name: String,
-    explain: Option[String],
-    delete_flag: Boolean,
-    created: DateTime,
-    updated: Option[DateTime]
+    explain: Option[String]
 )

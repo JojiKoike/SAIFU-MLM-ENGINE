@@ -26,18 +26,17 @@ class UserResourceHandler @Inject() (
   def create(createUserInput: CreateUserInput)(implicit mc: MarkerContext): Future[Int] = {
     createUserInput.password.bcryptSafeBounded match {
       case Success(encryptedPassword) =>
-        val data = User(
-          None,
-          tenantId = createUserInput.tenantId,
-          roleId = createUserInput.roleId,
-          loginId = createUserInput.loginId,
-          name = createUserInput.name,
-          password = encryptedPassword,
-          eMail = createUserInput.eMail,
-          None,
-          None
+        userDAO.create(
+          User(
+            "",
+            tenantId = createUserInput.tenantId,
+            roleId = createUserInput.roleId,
+            loginId = createUserInput.loginId,
+            name = createUserInput.name,
+            password = encryptedPassword,
+            eMail = createUserInput.eMail
+          )
         )
-        userDAO.create(data)
       case Failure(exception) =>
         logger.error(exception.getMessage)
         Future(ERROR_CODE)
@@ -45,7 +44,8 @@ class UserResourceHandler @Inject() (
   }
 
   def delete(deleteUserInput: DeleteUserInput)(implicit mc: MarkerContext): Future[Int] = {
-    userDAO.delete(deleteUserInput.id)
+    userDAO
+      .delete(deleteUserInput.id)
   }
 
   def login(loginInput: LoginInput)(implicit mc: MarkerContext): Future[Option[UserResource]] = {
@@ -66,6 +66,6 @@ class UserResourceHandler @Inject() (
   }
 
   private def createUserResource(user: User): UserResource = {
-    UserResource(user.id.get, user.tenantId, user.roleId, user.loginId, user.name, user.eMail)
+    UserResource(user.id, user.tenantId, user.roleId, user.loginId, user.name, user.eMail)
   }
 }

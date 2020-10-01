@@ -1,7 +1,5 @@
 package com.saifu_mlm.engine.account
 
-import org.joda.time.DateTime
-
 import scala.concurrent.Future
 
 /**
@@ -34,16 +32,13 @@ trait UserDAO {
   * @param name - User Name
   * @param password - Login Password
   * @param eMail - E-Mail
-  * @param created - Created Date Time
   */
 case class User(
-    id: Option[String],
+    id: String,
     tenantId: String,
     roleId: String,
     loginId: String,
     name: String,
     password: String,
-    eMail: String,
-    created: Option[DateTime],
-    updated: Option[DateTime]
+    eMail: String
 )

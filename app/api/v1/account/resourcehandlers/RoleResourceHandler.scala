@@ -3,7 +3,6 @@ package api.v1.account.resourcehandlers
 import api.v1.account.models.{CreateRoleInput, DeleteRoleInput, UpdateRoleInput}
 import com.saifu_mlm.engine.account.{Role, RoleDAO}
 import javax.inject.Inject
-import org.joda.time.DateTime
 import play.api.MarkerContext
 import play.api.libs.json.{Format, Json}
 
@@ -19,43 +18,25 @@ class RoleResourceHandler @Inject() (
     roleDAO: RoleDAO
 )(implicit ec: ExecutionContext) {
   def create(createRoleInput: CreateRoleInput)(implicit mc: MarkerContext): Future[RoleResource] = {
-    val data = Role(
-      java.util.UUID.randomUUID(),
-      createRoleInput.name,
-      Option(createRoleInput.explain),
-      delete_flag = false,
-      DateTime.now(),
-      None
-    )
-    roleDAO.create(data).map { _ => createRoleResource(data) }
+    roleDAO
+      .create(Role("", createRoleInput.name, Option(createRoleInput.explain)))
+      .map(createRoleResource)
   }
 
   def lookup(id: String)(implicit mc: MarkerContext): Future[Option[RoleResource]] = {
-    val roleFuture = roleDAO.lookUp(id)
-    roleFuture.map { maybeRoleData =>
-      maybeRoleData.map { roleData =>
-        createRoleResource(roleData)
-      }
-    }
+    roleDAO
+      .lookUp(id)
+      .map(maybeRoleData => maybeRoleData.map(createRoleResource))
   }
 
-  def update(updateRoleInput: UpdateRoleInput)(implicit mc: MarkerContext): Future[Option[RoleResource]] = {
-    val roleFuture = roleDAO.lookUp(updateRoleInput.id)
-    roleFuture.map { maybeRoleData =>
-      maybeRoleData.map { roleData =>
-        val modRoleData = roleData.copy(
-          name = updateRoleInput.name,
-          explain = Option(updateRoleInput.explain),
-          updated = Option(DateTime.now())
-        )
-        roleDAO.update(modRoleData)
-        createRoleResource(modRoleData)
-      }
-    }
+  def update(updateRoleInput: UpdateRoleInput)(implicit mc: MarkerContext): Future[Int] = {
+    roleDAO
+      .update(Role(updateRoleInput.id, updateRoleInput.name, Option(updateRoleInput.explain)))
   }
 
   def delete(deleteRoleInput: DeleteRoleInput)(implicit mc: MarkerContext): Future[Int] = {
-    roleDAO.delete(deleteRoleInput.id)
+    roleDAO
+      .delete(deleteRoleInput.id)
   }
 
   def find(implicit mc: MarkerContext): Future[Iterable[RoleResource]] = {
@@ -65,7 +46,7 @@ class RoleResourceHandler @Inject() (
   }
 
   private def createRoleResource(role: Role): RoleResource = {
-    RoleResource(role.id.toString, role.name, role.explain)
+    RoleResource(role.id, role.name, role.explain)
   }
 
 }

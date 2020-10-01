@@ -109,6 +109,7 @@ class SaifuDefaultActionBuilder @Inject() (
 
     maybeFutureResult
       .getOrElse(block(new SaifuDefaultRequest[A](request, None, messagesApi)))
+    /*
       .map { result =>
         request.method match {
           case GET | HEAD =>
@@ -116,6 +117,6 @@ class SaifuDefaultActionBuilder @Inject() (
           case _ =>
             result
         }
-      }
+      }*/
   }
 }

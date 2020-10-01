@@ -1,9 +1,5 @@
 package com.saifu_mlm.engine.account
 
-import java.util.UUID
-
-import org.joda.time.DateTime
-
 import scala.concurrent.Future
 
 trait RoleDAO {
@@ -16,17 +12,14 @@ trait RoleDAO {
 
   def delete(id: String): Future[Int]
 
-  def create(role: Role): Future[Int]
+  def create(role: Role): Future[Role]
 
   def close(): Future[Unit]
 
 }
 
 case class Role(
-    id: UUID,
+    id: String,
     name: String,
-    explain: Option[String],
-    delete_flag: Boolean,
-    created: DateTime,
-    updated: Option[DateTime]
+    explain: Option[String]
 )
