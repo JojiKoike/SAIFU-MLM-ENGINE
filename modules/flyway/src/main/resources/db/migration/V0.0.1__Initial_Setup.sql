@@ -39,7 +39,7 @@ CREATE TABLE m_users (
     "login_id" varchar(50) NOT NULL UNIQUE,
     "name" varchar(20) NOT NULL,
     "password" varchar(100) NOT NULL,
-    "e-mail" varchar(100) NOT NULL,
+    "e-mail" varchar(100) NOT NULL UNIQUE,
     "delete_flag" boolean NOT NULL DEFAULT FALSE,
     "created_at" timestamp with time zone NOT NULL DEFAULT current_timestamp,
     "updated_at" timestamp with time zone
