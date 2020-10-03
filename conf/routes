@@ -7,3 +7,4 @@
 ->          /v1/account/tenant     api.v1.account.routers.TenantRouter
 ->          /v1/account/role       api.v1.account.routers.RoleRouter
 ->          /v1/account/user       api.v1.account.routers.UserRouter
+->          /v1/saifu/cateogry     api.v1.saifu.routers.SaifuCategoryRouter

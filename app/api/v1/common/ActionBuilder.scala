@@ -104,7 +104,7 @@ class SaifuDefaultActionBuilder @Inject() (
           val maybeUserResource = cookieBaker.decodeFromCookie(Some(userResourceCookie))
           block(new SaifuDefaultRequest[A](request, maybeUserResource, messagesApi))
         case None =>
-          Future(Unauthorized)
+          Future.successful(Unauthorized)
       }
     }
     maybeFutureResult
