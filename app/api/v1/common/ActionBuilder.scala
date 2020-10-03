@@ -97,6 +97,7 @@ class SaifuDefaultActionBuilder @Inject() (
       sessionId          <- request.session.get(SESSION_ID)
       userResourceCookie <- request.cookies.get(SESSION_DATA_COOKIE_NAME)
     } yield {
+      // Lookup Session Secret key in Akka Distributed Storage
       sessionService.lookup(sessionId).flatMap {
         case Some(secretKey) =>
           val cookieBaker       = factory.createCookieBaker(secretKey)
@@ -106,17 +107,7 @@ class SaifuDefaultActionBuilder @Inject() (
           Future(Unauthorized)
       }
     }
-
     maybeFutureResult
       .getOrElse(block(new SaifuDefaultRequest[A](request, None, messagesApi)))
-    /*
-      .map { result =>
-        request.method match {
-          case GET | HEAD =>
-            result.withHeaders("Cache-Control" -> s"max-age: 3600")
-          case _ =>
-            result
-        }
-      }*/
   }
 }

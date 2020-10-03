@@ -37,7 +37,7 @@ object SaifuSubCategoryResource {
   * @param saifuSubcategoryDAO Saifu Sub Category DAO
   * @param ec ExecutionContext
   */
-class CategoryResourceHandler @Inject() (
+class SaifuCategoryResourceHandler @Inject() (
     saifuMainCategoryDAO: SaifuMainCategoryDAO,
     saifuSubcategoryDAO: SaifuSubCategoryDAO
 )(implicit ec: ExecutionContext) {

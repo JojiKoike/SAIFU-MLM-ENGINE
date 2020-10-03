@@ -11,7 +11,7 @@ case class CreateSubCategoryInput(mainCategoryID: String, name: String, explain:
 
 case class UpdateSubCategoryInput(id: String, mainCategoryID: String, name: String, explain: String)
 
-object Category {
+object SaifuCategory {
 
   val createMainCategoryInput: Form[CreateMainCategoryInput] = Form {
     mapping(
