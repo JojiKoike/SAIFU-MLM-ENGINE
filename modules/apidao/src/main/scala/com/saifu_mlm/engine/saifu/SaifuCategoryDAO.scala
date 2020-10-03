@@ -54,10 +54,25 @@ trait SaifuCategoryDAOBase[A] {
   def close(): Future[Unit]
 }
 
-case class SaifuMainCategory(id: String, tenantID: String, name: String, explain: String)
+/**
+  * Saifu Main Category Entity
+  * @param id ID
+  * @param tenantID Tenant ID
+  * @param name Name
+  * @param explain Explain
+  */
+case class SaifuMainCategory(id: String = "", tenantID: String, name: String, explain: String)
 
+/**
+  * Saifu Sub Category Entity
+  * @param id ID
+  * @param saifuMainCategoryID Main Category ID belongs to
+  * @param tenantID Tenant ID
+  * @param name Name
+  * @param explain Explain
+  */
 case class SaifuSubCategory(
-    id: String,
+    id: String = "",
     saifuMainCategoryID: String,
     tenantID: String,
     name: String,
