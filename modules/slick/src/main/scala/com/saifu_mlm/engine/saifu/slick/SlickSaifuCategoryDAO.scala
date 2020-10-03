@@ -45,8 +45,8 @@ class SlickSaifuMainCategoryDAO @Inject() (db: Database)(implicit ec: ExecutionC
   override def create(saifuMainCategory: SaifuMainCategory): Future[Int] = {
     db.run(
       (MSaifuMainCategories
-        .map(target => (target.id, target.tenantId, target.name, target.explain))
-        += (saifuMainCategory.id.toInt, Option(string2UUID(saifuMainCategory.tenantID)),
+        .map(target => (target.tenantId, target.name, target.explain))
+        += (Option(string2UUID(saifuMainCategory.tenantID)),
           saifuMainCategory.name, Option(saifuMainCategory.explain))).transactionally
     )
   }

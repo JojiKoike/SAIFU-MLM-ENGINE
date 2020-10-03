@@ -26,8 +26,8 @@ class SaifuCategoryController @Inject() (scc: SaifuCategoryControllerComponents)
             Ok(Json.toJson(categories))
           }
         case None =>
-          logger.error("Internal Error")
-          Future(InternalServerError)
+          logger.error("Unauthorized")
+          Future.successful(Unauthorized)
       }
     }
 
@@ -40,15 +40,14 @@ class SaifuCategoryController @Inject() (scc: SaifuCategoryControllerComponents)
             Ok(Json.toJson(category))
           }
         case None =>
-          logger.error("Internal Error")
-          Future.successful(InternalServerError)
+          logger.error("Unauthorized")
+          Future.successful(Unauthorized)
       }
     }
   }
 
   def processMain: Action[AnyContent] =
     saifuDefaultAction.async { implicit request =>
-      logger.trace("Process Main: ")
       SaifuCategory.createMainCategoryInput.bindFromRequest.fold(
         failure => {
           Future.successful(BadRequest(failure.errorsAsJson))
@@ -57,13 +56,13 @@ class SaifuCategoryController @Inject() (scc: SaifuCategoryControllerComponents)
           request.userResource match {
             case Some(userResource) =>
               saifuCategoryResourceHandler
-                .createMain(userResource.tenantID, success)
+                .createMain(userResource.tenantID.substring(5, 41), success)
                 .map { _ =>
                   Created
                 }
             case None =>
-              logger.error("Internal Error")
-              Future.successful(InternalServerError)
+              logger.error("Unauthorized")
+              Future.successful(Unauthorized)
           }
         }
       )
@@ -85,8 +84,8 @@ class SaifuCategoryController @Inject() (scc: SaifuCategoryControllerComponents)
                   Created
                 }
             case None =>
-              logger.error("Internal Error")
-              Future.successful(InternalServerError)
+              logger.error("Unauthorized")
+              Future.successful(Unauthorized)
           }
         }
       )
@@ -108,7 +107,7 @@ class SaifuCategoryController @Inject() (scc: SaifuCategoryControllerComponents)
                   NoContent
                 }
             case None =>
-              logger.error("Internal Error")
+              logger.error("Unauthorized")
               Future.successful(InternalServerError)
           }
         }
@@ -129,7 +128,7 @@ class SaifuCategoryController @Inject() (scc: SaifuCategoryControllerComponents)
                 .updateSub(userResource.tenantID, success)
                 .map { _ => NoContent }
             case None =>
-              logger.error("Internal Error")
+              logger.error("Unauthorized")
               Future.successful(InternalServerError)
           }
         }
