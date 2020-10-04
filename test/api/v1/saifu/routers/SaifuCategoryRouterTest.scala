@@ -1,6 +1,8 @@
 package api.v1.saifu.routers
 
 import api.v1.account.resourcehandlers.{RoleResource, TenantResource}
+import api.v1.common.someRemover
+import api.v1.saifu.resourcehandlers.SaifuCategoryResource
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
@@ -146,7 +148,37 @@ class SaifuCategoryRouterTest extends PlaySpec with GuiceOneAppPerSuite {
         status(result) mustBe NO_CONTENT
       }
     }
-
+    "Read Category" should {
+      "Read One Saifu Category Data" in {
+        val request = FakeRequest(GET, "/v1/saifu/category/1/")
+          .withHeaders(HOST -> "localhost:9000")
+          .withCookies(cookie)
+          .withSession(session.data.head)
+          .withCSRFToken
+        val result: Future[Result]          = route(app, request).get
+        val category: SaifuCategoryResource = Json.fromJson[SaifuCategoryResource](contentAsJson(result)).get
+        category.mainCategory.name mustBe "UpdateMainCategory"
+        category.mainCategory.explain.get mustBe "UpdateMainCategoryExplain"
+        category.subCategories.head.name mustBe "UpdateSubCategory"
+        category.subCategories.head.explain.get mustBe "UpdateSubCategoryExplain"
+        status(result) mustBe OK
+      }
+      "Read All Saifu Category Date" in {
+        val request = FakeRequest(GET, "/v1/saifu/category/")
+          .withHeaders(HOST -> "localhost:9000")
+          .withCookies(cookie)
+          .withSession(session.data.head)
+          .withCSRFToken
+        val result: Future[Result] = route(app, request).get
+        val categories: Seq[SaifuCategoryResource] =
+          Json.fromJson[Seq[SaifuCategoryResource]](contentAsJson(result)).get
+        categories.head.mainCategory.name mustBe "UpdateMainCategory"
+        categories.head.mainCategory.explain.get mustBe "UpdateMainCategoryExplain"
+        categories.head.subCategories.head.name mustBe "UpdateSubCategory"
+        categories.head.subCategories.head.explain.get mustBe "UpdateSubCategoryExplain"
+        status(result) mustBe OK
+      }
+    }
   }
 
 }
