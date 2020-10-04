@@ -111,6 +111,41 @@ class SaifuCategoryRouterTest extends PlaySpec with GuiceOneAppPerSuite {
         status(result) mustBe CREATED
       }
     }
+    "Update Category" should {
+      "Update Main Category" in {
+        val request = FakeRequest(PUT, "/v1/saifu/category/main/")
+          .withHeaders(HOST -> "localhost:9000")
+          .withCookies(cookie)
+          .withSession(session.data.head)
+          .withJsonBody(
+            Json.obj(
+              "id"      -> "1",
+              "name"    -> "UpdateMainCategory",
+              "explain" -> "UpdateMainCategoryExplain"
+            )
+          )
+          .withCSRFToken
+        val result: Future[Result] = route(app, request).get
+        status(result) mustBe NO_CONTENT
+      }
+      "Update Sub Category" in {
+        val request = FakeRequest(PUT, "/v1/saifu/category/sub/")
+          .withHeaders(HOST -> "localhost:9000")
+          .withCookies(cookie)
+          .withSession(session.data.head)
+          .withJsonBody(
+            Json.obj(
+              "id"             -> "1",
+              "mainCategoryID" -> "1",
+              "name"           -> "UpdateSubCategory",
+              "explain"        -> "UpdateSubCategoryExplain"
+            )
+          )
+          .withCSRFToken
+        val result: Future[Result] = route(app, request).get
+        status(result) mustBe NO_CONTENT
+      }
+    }
 
   }
 
