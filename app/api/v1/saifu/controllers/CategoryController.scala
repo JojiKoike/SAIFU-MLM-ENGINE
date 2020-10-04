@@ -1,6 +1,6 @@
 package api.v1.saifu.controllers
 
-import api.v1.common.{RequestMarkerContext, SaifuDefaultActionBuilder}
+import api.v1.common.{someRemover, RequestMarkerContext, SaifuDefaultActionBuilder}
 import api.v1.saifu.models.SaifuCategory
 import api.v1.saifu.resourcehandlers.SaifuCategoryResourceHandler
 import javax.inject.Inject
@@ -22,7 +22,7 @@ class SaifuCategoryController @Inject() (scc: SaifuCategoryControllerComponents)
       logger.trace("index: ")
       request.userResource match {
         case Some(userResource) =>
-          saifuCategoryResourceHandler.all(userResource.tenantID).map { categories =>
+          saifuCategoryResourceHandler.all(someRemover(userResource.tenantID)).map { categories =>
             Ok(Json.toJson(categories))
           }
         case None =>
@@ -36,7 +36,7 @@ class SaifuCategoryController @Inject() (scc: SaifuCategoryControllerComponents)
       logger.trace(s"sho: id = $id")
       request.userResource match {
         case Some(userResource) =>
-          saifuCategoryResourceHandler.lookup(userResource.tenantID, id).map { category =>
+          saifuCategoryResourceHandler.lookup(someRemover(userResource.tenantID), id).map { category =>
             Ok(Json.toJson(category))
           }
         case None =>
@@ -56,7 +56,7 @@ class SaifuCategoryController @Inject() (scc: SaifuCategoryControllerComponents)
           request.userResource match {
             case Some(userResource) =>
               saifuCategoryResourceHandler
-                .createMain(userResource.tenantID.substring(5, 41), success)
+                .createMain(someRemover(userResource.tenantID), success)
                 .map { _ =>
                   Created
                 }
@@ -79,7 +79,7 @@ class SaifuCategoryController @Inject() (scc: SaifuCategoryControllerComponents)
           request.userResource match {
             case Some(userResource) =>
               saifuCategoryResourceHandler
-                .createSub(userResource.tenantID, success)
+                .createSub(someRemover(userResource.tenantID), success)
                 .map { _ =>
                   Created
                 }
@@ -91,7 +91,7 @@ class SaifuCategoryController @Inject() (scc: SaifuCategoryControllerComponents)
       )
     }
 
-  def updateMain: Action[AnyContent] =
+  def updateMain(): Action[AnyContent] =
     saifuDefaultAction.async { implicit request =>
       logger.trace("Update Main:")
       SaifuCategory.updateMainCategoryInput.bindFromRequest.fold(
@@ -102,7 +102,7 @@ class SaifuCategoryController @Inject() (scc: SaifuCategoryControllerComponents)
           request.userResource match {
             case Some(userResource) =>
               saifuCategoryResourceHandler
-                .updateMain(userResource.tenantID, success)
+                .updateMain(someRemover(userResource.tenantID), success)
                 .map { _ =>
                   NoContent
                 }
@@ -114,7 +114,7 @@ class SaifuCategoryController @Inject() (scc: SaifuCategoryControllerComponents)
       )
     }
 
-  def updateSub: Action[AnyContent] =
+  def updateSub(): Action[AnyContent] =
     saifuDefaultAction.async { implicit request =>
       logger.trace("Update Sub:")
       SaifuCategory.updateSubCategoryInput.bindFromRequest.fold(
@@ -125,7 +125,7 @@ class SaifuCategoryController @Inject() (scc: SaifuCategoryControllerComponents)
           request.userResource match {
             case Some(userResource) =>
               saifuCategoryResourceHandler
-                .updateSub(userResource.tenantID, success)
+                .updateSub(someRemover(userResource.tenantID), success)
                 .map { _ => NoContent }
             case None =>
               logger.error("Unauthorized")
@@ -134,6 +134,7 @@ class SaifuCategoryController @Inject() (scc: SaifuCategoryControllerComponents)
         }
       )
     }
+
 }
 
 case class SaifuCategoryControllerComponents @Inject() (
