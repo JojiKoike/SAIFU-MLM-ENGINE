@@ -25,7 +25,7 @@ class SlickSaifuMainCategoryDAO @Inject() (db: Database)(implicit ec: ExecutionC
       .filter(!_.deleteFlag)
       .filter(_.tenantId === tenantID)
 
-  override def lookUp(id: String, tenantID: String): Future[Option[SaifuMainCategory]] = {
+  override def lookUp(tenantID: String, id: String): Future[Option[SaifuMainCategory]] = {
     db.run(
         queryByTenantID(string2UUID(tenantID))
           .filter(_.id === id.toInt)
