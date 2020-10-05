@@ -14,6 +14,7 @@ atdk
 
 * Scala 2.13.2
 * PlayFramework 2.8
+* Docker
 
 # Installation
 
