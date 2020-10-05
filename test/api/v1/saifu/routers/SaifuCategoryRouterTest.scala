@@ -1,7 +1,6 @@
 package api.v1.saifu.routers
 
 import api.v1.account.resourcehandlers.{RoleResource, TenantResource}
-import api.v1.common.someRemover
 import api.v1.saifu.resourcehandlers.SaifuCategoryResource
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
