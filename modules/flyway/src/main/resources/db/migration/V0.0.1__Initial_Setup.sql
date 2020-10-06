@@ -363,6 +363,7 @@ CREATE TRIGGER update_tri BEFORE UPDATE ON t_debt_item_histories FOR EACH ROW
 CREATE TABLE t_saifu_histories (
     "id" uuid PRIMARY KEY,
     "saifu_id" uuid REFERENCES m_saifu(id) ON DELETE SET NULL ON UPDATE CASCADE,
+    "initial_record_flag" boolean NOT NULL DEFAULT FALSE,
     "income_id" uuid,
     "expense_id" uuid,
     "investment_id" uuid,

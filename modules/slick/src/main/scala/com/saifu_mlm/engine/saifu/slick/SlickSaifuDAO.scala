@@ -18,9 +18,62 @@ class SlickSaifuDAO @Inject() (db: Database)(implicit ec: ExecutionContext) exte
 
   import profile.api._
 
-  override def lookup(userID: String, id: String): Future[Option[Saifu]] = ???
+  override def lookup(userID: String, id: String): Future[Seq[Saifu]] = {
+    db.run(
+      MSaifu
+        .join(TSaifuHistories)
+        .on(_.id === _.saifuId)
+        .filter {
+          case (t1, t2) =>
+            !t1.deleteFlag &&
+            !t2.deleteFlag &&
+            !t1.saifuSubCategoryId.isEmpty &&
+            t1.userId === string2UUID(userID) &&
+            t1.id === string2UUID(id) &&
+            t2.initialRecordFlag
+        }
+        .map {
+          case (t1, t2) =>
+            (
+              t1.id.toString,
+              t1.saifuSubCategoryId..toString,
+              t1.userId.toString,
+              t1.name,
+              t1.explain.toString,
+              t2.balance
+            ) <> (Saifu.tupled, Saifu.unapply)
+        }
+        .result
+    )
+  }
 
-  override def all(userID: String): Future[Seq[Saifu]] = ???
+  override def all(userID: String): Future[Seq[Saifu]] = {
+    db.run(
+      MSaifu
+        .join(TSaifuHistories)
+        .on(_.id === _.saifuId)
+        .filter {
+          case (t1, t2) =>
+            !t1.deleteFlag &&
+              !t2.deleteFlag &&
+              !t1.saifuSubCategoryId.isEmpty &&
+              t1.userId === string2UUID(userID) &&
+              t2.initialRecordFlag
+        }
+        .map {
+          case (t1, t2) =>
+            (
+              t1.id.toString,
+              t1.saifuSubCategoryId.toString,
+              t1.userId.toString,
+              t1.name,
+              t1.explain.toString,
+              t2.balance
+            ) <> (Saifu.tupled, Saifu.unapply)
+        }
+        .result
+    )
+  }
 
   override def create(saifu: Saifu): Future[Int] = {
     db.run(
@@ -57,9 +110,10 @@ class SlickSaifuDAO @Inject() (db: Database)(implicit ec: ExecutionContext) exte
                       TSaifuHistoriesRow(
                         id = UUID.randomUUID(),
                         saifuId = Option(saifuID),
+                        initialRecordFlag = true,
                         income = 0,
                         outcome = 0,
-                        balance = saifu.currentBalance.toLong,
+                        balance = saifu.balance,
                         transactionDate = DateTime.now(),
                         createdAt = DateTime.now()
                       )

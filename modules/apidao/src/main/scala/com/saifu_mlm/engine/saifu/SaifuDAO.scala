@@ -7,7 +7,7 @@ import scala.concurrent.Future
   */
 trait SaifuDAO {
 
-  def lookup(userID: String, id: String): Future[Option[Saifu]]
+  def lookup(userID: String, id: String): Future[Seq[Saifu]]
 
   def all(userID: String): Future[Seq[Saifu]]
 
@@ -26,7 +26,7 @@ trait SaifuDAO {
   * @param userID
   * @param name
   * @param explain
-  * @param currentBalance
+  * @param balance
   */
 case class Saifu(
     id: String = "",
@@ -34,5 +34,5 @@ case class Saifu(
     userID: String,
     name: String,
     explain: String = "",
-    currentBalance: BigInt = 0
+    balance: Long = 0
 )
