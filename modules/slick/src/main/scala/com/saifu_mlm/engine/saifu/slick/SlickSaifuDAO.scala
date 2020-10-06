@@ -36,7 +36,7 @@ class SlickSaifuDAO @Inject() (db: Database)(implicit ec: ExecutionContext) exte
           case (t1, t2) =>
             (
               t1.id.toString,
-              t1.saifuSubCategoryId..toString,
+              t1.saifuSubCategoryId.toString,
               t1.userId.toString,
               t1.name,
               t1.explain.toString,
@@ -55,10 +55,10 @@ class SlickSaifuDAO @Inject() (db: Database)(implicit ec: ExecutionContext) exte
         .filter {
           case (t1, t2) =>
             !t1.deleteFlag &&
-              !t2.deleteFlag &&
-              !t1.saifuSubCategoryId.isEmpty &&
-              t1.userId === string2UUID(userID) &&
-              t2.initialRecordFlag
+            !t2.deleteFlag &&
+            !t1.saifuSubCategoryId.isEmpty &&
+            t1.userId === string2UUID(userID) &&
+            t2.initialRecordFlag
         }
         .map {
           case (t1, t2) =>
