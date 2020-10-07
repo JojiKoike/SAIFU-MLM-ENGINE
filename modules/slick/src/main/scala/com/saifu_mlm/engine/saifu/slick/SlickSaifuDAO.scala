@@ -77,50 +77,46 @@ class SlickSaifuDAO @Inject() (db: Database)(implicit ec: ExecutionContext) exte
 
   override def create(saifu: Saifu): Future[Int] = {
     db.run(
-      (
-        // Duplication Check
-        MSaifu
-          .filter(item =>
-            (!item.deleteFlag)
-            && (item.userId === string2UUID(saifu.userID)
-            && (item.saifuSubCategoryId === saifu.subCategoryID.toInt
-            && (item.name === saifu.name)))
-          )
-          .exists
-          .result
-          .flatMap {
-            case true => DBIO.successful(ERROR_CODE) // Already Exists
-            case false =>
-              (
-                (
-                  // Insert New Saifu Record
-                  MSaifu returning MSaifu.map(_.id)
-                    += MSaifuRow(
-                        id = UUID.randomUUID(),
-                        userId = Option(string2UUID(saifu.userID)),
-                        saifuSubCategoryId = Option(saifu.subCategoryID.toInt),
-                        name = saifu.name,
-                        explain = Option(saifu.explain),
-                        createdAt = DateTime.now()
-                      )
-                ).flatMap(
-                  // Insert Initial Saifu History Record
-                  saifuID =>
-                    TSaifuHistories +=
-                      TSaifuHistoriesRow(
-                        id = UUID.randomUUID(),
-                        saifuId = Option(saifuID),
-                        initialRecordFlag = true,
-                        income = 0,
-                        outcome = 0,
-                        balance = saifu.balance,
-                        transactionDate = DateTime.now(),
-                        createdAt = DateTime.now()
-                      )
-                )
-              )
-          }
+      // Duplication Check
+      MSaifu
+        .filter(item =>
+          (!item.deleteFlag)
+          && (item.userId === string2UUID(saifu.userID)
+          && (item.saifuSubCategoryId === saifu.subCategoryID.toInt
+          && (item.name === saifu.name)))
         )
+        .exists
+        .result
+        .flatMap {
+          case true => DBIO.successful(ERROR_CODE) // Already Exists
+          case false =>
+            (
+              // Insert New Saifu Record
+              MSaifu returning MSaifu.map(_.id)
+                += MSaifuRow(
+                    id = UUID.randomUUID(),
+                    userId = Option(string2UUID(saifu.userID)),
+                    saifuSubCategoryId = Option(saifu.subCategoryID.toInt),
+                    name = saifu.name,
+                    explain = Option(saifu.explain),
+                    createdAt = DateTime.now()
+                  )
+            ).flatMap(
+              // Insert Initial Saifu History Record
+              saifuID =>
+                TSaifuHistories +=
+                  TSaifuHistoriesRow(
+                    id = UUID.randomUUID(),
+                    saifuId = Option(saifuID),
+                    initialRecordFlag = true,
+                    income = 0,
+                    outcome = 0,
+                    balance = saifu.balance,
+                    transactionDate = DateTime.now(),
+                    createdAt = DateTime.now()
+                  )
+            )
+        }
         .transactionally
     )
   }
