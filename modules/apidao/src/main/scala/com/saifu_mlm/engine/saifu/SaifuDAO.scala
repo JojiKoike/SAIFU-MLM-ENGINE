@@ -7,11 +7,11 @@ import scala.concurrent.Future
   */
 trait SaifuDAO {
 
-  def lookup(userID: String, id: String): Future[Seq[Saifu]]
+  def lookup(userID: String, id: String): Future[Option[Saifu]]
 
   def all(userID: String): Future[Seq[Saifu]]
 
-  def create(saifu: Saifu): Future[Any]
+  def create(saifu: Saifu): Future[Int]
 
   def update(saifu: Saifu): Future[Any]
 

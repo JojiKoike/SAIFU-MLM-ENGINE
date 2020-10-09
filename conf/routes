@@ -8,3 +8,4 @@
 ->          /v1/account/role       api.v1.account.routers.RoleRouter
 ->          /v1/account/user       api.v1.account.routers.UserRouter
 ->          /v1/saifu/category     api.v1.saifu.routers.SaifuCategoryRouter
+->          /v1/saifu              api.v1.saifu.routers.SaifuRouter

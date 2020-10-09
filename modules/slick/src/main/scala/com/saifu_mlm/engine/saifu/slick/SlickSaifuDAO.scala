@@ -18,7 +18,7 @@ class SlickSaifuDAO @Inject() (db: Database)(implicit ec: ExecutionContext) exte
 
   import profile.api._
 
-  override def lookup(userID: String, id: String): Future[Seq[Saifu]] = {
+  override def lookup(userID: String, id: String): Future[Option[Saifu]] = {
     db.run(
       MSaifu
         .join(TSaifuHistories)
@@ -44,6 +44,7 @@ class SlickSaifuDAO @Inject() (db: Database)(implicit ec: ExecutionContext) exte
             ) <> (Saifu.tupled, Saifu.unapply)
         }
         .result
+        .headOption
     )
   }
 
@@ -121,7 +122,47 @@ class SlickSaifuDAO @Inject() (db: Database)(implicit ec: ExecutionContext) exte
     )
   }
 
-  override def update(saifu: Saifu): Future[Int] = ???
+  override def update(saifu: Saifu): Future[Int] = {
+    val querySaifu =
+      MSaifu.filter { item =>
+        !item.deleteFlag &&
+        item.userId === string2UUID(saifu.userID) &&
+        item.id === string2UUID(saifu.id)
+      }
+
+    val queryHistory =
+      TSaifuHistories.filter { item =>
+        !item.deleteFlag &&
+        item.initialRecordFlag &&
+        item.saifuId === string2UUID(saifu.id)
+      }
+
+    db.run(
+      querySaifu.exists.result.flatMap {
+        case false => DBIO.successful(ERROR_CODE)
+        case true  =>
+          // Update MSaifu
+          querySaifu
+            .map(target => (target.saifuSubCategoryId, target.name, target.explain))
+            .update(Option(saifu.subCategoryID.toInt), saifu.name, Option(saifu.explain))
+            .andThen {
+              // Get Before Update Value
+              queryHistory
+                .map(_.balance)
+                .result
+                .head
+                .flatMap { initialBalance =>
+                  val delta = saifu.balance - initialBalance
+                  TSaifuHistories
+                    .filter(target => !target.deleteFlag && target.saifuId === string2UUID(saifu.id))
+                    .map(_.balance)
+                    .update(+delta)
+                }
+            }
+            .transactionally
+      }
+    )
+  }
 
   override def close(): Future[Unit] = {
     Future.successful(db.close())
