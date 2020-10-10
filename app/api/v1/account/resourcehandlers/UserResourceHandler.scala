@@ -52,14 +52,13 @@ class UserResourceHandler @Inject() (
 
   def login(loginInput: LoginInput)(implicit mc: MarkerContext): Future[Option[UserResource]] = {
     userDAO.login(loginInput.loginID).map { maybeUserData =>
-      maybeUserData.map { userData =>
+      maybeUserData.flatMap { userData =>
         {
           loginInput.password.isBcryptedSafeBounded(userData.password) match {
-            case Success(true) => createUserResource(userData)
+            case Success(true) => Some(createUserResource(userData))
             case Failure(exception) => {
               logger.error(exception.getMessage)
-              // TODO Mod Return Value for null safe
-              null
+              None
             }
           }
         }
