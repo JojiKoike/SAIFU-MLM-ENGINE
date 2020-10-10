@@ -159,8 +159,7 @@ class SlickSaifuDAO @Inject() (db: Database)(implicit ec: ExecutionContext) exte
                     .update(+delta)
                 }
             }
-            .transactionally
-      }
+      }.transactionally
     )
   }
 

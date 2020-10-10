@@ -13,7 +13,7 @@ trait SaifuDAO {
 
   def create(saifu: Saifu): Future[Int]
 
-  def update(saifu: Saifu): Future[Any]
+  def update(saifu: Saifu): Future[Int]
 
   def close(): Future[Unit]
 
