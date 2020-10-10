@@ -2,10 +2,11 @@ package com.saifu_mlm.engine.saifu.slick
 
 import java.util.UUID
 
-import com.saifu_mlm.engine.common.string2UUID
+import com.saifu_mlm.engine.common.{string2UUID, ERROR_CODE}
 import com.saifu_mlm.engine.saifu.{SaifuMainCategory, SaifuMainCategoryDAO, SaifuSubCategory, SaifuSubCategoryDAO}
 import com.saifu_mlm.infrastructure.db.slick.Tables
 import javax.inject.{Inject, Singleton}
+import org.joda.time.DateTime
 import slick.jdbc.JdbcBackend.Database
 import slick.jdbc.JdbcProfile
 
@@ -44,10 +45,30 @@ class SlickSaifuMainCategoryDAO @Inject() (db: Database)(implicit ec: ExecutionC
 
   override def create(saifuMainCategory: SaifuMainCategory): Future[Int] = {
     db.run(
-      (MSaifuMainCategories
-        .map(target => (target.tenantId, target.name, target.explain))
-        += (Option(string2UUID(saifuMainCategory.tenantID)),
-          saifuMainCategory.name, Option(saifuMainCategory.explain))).transactionally
+      // Same MainCategory name in same tenant is not allowed.
+      MSaifuMainCategories
+        .filter(item =>
+          !item.deleteFlag &&
+          item.tenantId === string2UUID(saifuMainCategory.tenantID) &&
+          item.name === saifuMainCategory.name
+        )
+        .exists
+        .result
+        .flatMap {
+          case true => DBIO.successful(ERROR_CODE)
+          case false =>
+            (
+              MSaifuMainCategories returning MSaifuMainCategories.map(_.id)
+                += MSaifuMainCategoriesRow(
+                    id = 0,
+                    tenantId = Option(string2UUID(saifuMainCategory.tenantID)),
+                    name = saifuMainCategory.name,
+                    explain = Option(saifuMainCategory.explain),
+                    createdAt = DateTime.now()
+                  )
+            )
+        }
+        .transactionally
     )
   }
 
@@ -110,12 +131,31 @@ class SlickSaifuSubCategoryDAO @Inject() (db: Database)(implicit ec: ExecutionCo
 
   override def create(saifuSubCategory: SaifuSubCategory): Future[Int] = {
     db.run(
-      (MSaifuSubCategories
-        .map(item => (item.saifuMainCategoryId, item.tenantId, item.name, item.explain)) +=
-        (Option(saifuSubCategory.saifuMainCategoryID.toInt),
-        Option(string2UUID(saifuSubCategory.tenantID)),
-        saifuSubCategory.name,
-        Option(saifuSubCategory.explain))).transactionally
+      MSaifuSubCategories
+        .filter(item =>
+          !item.deleteFlag &&
+          item.tenantId === string2UUID(saifuSubCategory.tenantID) &&
+          item.saifuMainCategoryId === saifuSubCategory.saifuMainCategoryID.toInt &&
+          item.name === saifuSubCategory.name
+        )
+        .exists
+        .result
+        .flatMap {
+          case true => DBIO.successful(ERROR_CODE)
+          case false =>
+            (
+              MSaifuSubCategories returning MSaifuSubCategories.map(_.id)
+                += MSaifuSubCategoriesRow(
+                    id = 0,
+                    tenantId = Option(string2UUID(saifuSubCategory.tenantID)),
+                    saifuMainCategoryId = Option(saifuSubCategory.saifuMainCategoryID.toInt),
+                    name = saifuSubCategory.name,
+                    explain = Option(saifuSubCategory.explain),
+                    createdAt = DateTime.now()
+                  )
+            )
+        }
+        .transactionally
     )
   }
 

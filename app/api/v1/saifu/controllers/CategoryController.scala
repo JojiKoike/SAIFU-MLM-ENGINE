@@ -57,8 +57,9 @@ class SaifuCategoryController @Inject() (scc: SaifuCategoryControllerComponents)
             case Some(userResource) =>
               saifuCategoryResourceHandler
                 .createMain(someRemover(userResource.tenantID), success)
-                .map { _ =>
-                  Created
+                .map {
+                  case Some(value) => Created(Json.toJson(value))
+                  case None        => BadRequest
                 }
             case None =>
               logger.error("Unauthorized")
@@ -80,8 +81,9 @@ class SaifuCategoryController @Inject() (scc: SaifuCategoryControllerComponents)
             case Some(userResource) =>
               saifuCategoryResourceHandler
                 .createSub(someRemover(userResource.tenantID), success)
-                .map { _ =>
-                  Created
+                .map {
+                  case Some(value) => Created(Json.toJson(value))
+                  case None        => BadRequest
                 }
             case None =>
               logger.error("Unauthorized")

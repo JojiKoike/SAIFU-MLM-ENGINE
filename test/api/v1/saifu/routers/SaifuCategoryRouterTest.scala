@@ -1,7 +1,7 @@
 package api.v1.saifu.routers
 
 import api.v1.account.resourcehandlers.{RoleResource, TenantResource}
-import api.v1.saifu.resourcehandlers.SaifuCategoryResource
+import api.v1.saifu.resourcehandlers.{SaifuCategoryResource, SaifuMainCategoryResource, SaifuSubCategoryResource}
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
@@ -20,8 +20,8 @@ class SaifuCategoryRouterTest extends PlaySpec with GuiceOneAppPerSuite {
     // Prepare Dummy Tenant and Role
     // Tenant
     var tenantID      = ""
-    val tenantName    = "SaifuTestTenant"
-    val tenantExplain = "SaifuTestTenantExplain"
+    val tenantName    = "SaifuCategoryTestTenant"
+    val tenantExplain = "SaifuCategoryTestTenantExplain"
     val tenantRequest = FakeRequest(POST, "/v1/account/tenant/")
       .withHeaders(HOST -> "localhost:9000")
       .withJsonBody(Json.obj("name" -> tenantName, "explain" -> tenantExplain))
@@ -31,8 +31,8 @@ class SaifuCategoryRouterTest extends PlaySpec with GuiceOneAppPerSuite {
     tenantID = tenant.id
     // Role
     var roleID      = ""
-    val roleName    = "SaifuUserRole"
-    val roleExplain = "UserTestRoleExplain"
+    val roleName    = "SaifuCategoryTestUserRole"
+    val roleExplain = "SaifuCategoryTestUserTestRoleExplain"
     val roleRequest = FakeRequest(POST, "/v1/account/role/")
       .withHeaders(HOST -> "localhost:9000")
       .withJsonBody(Json.obj("name" -> roleName, "explain" -> roleExplain))
@@ -41,8 +41,8 @@ class SaifuCategoryRouterTest extends PlaySpec with GuiceOneAppPerSuite {
     val role: RoleResource         = Json.fromJson[RoleResource](contentAsJson(roleResult)).get
     roleID = role.id
     // User
-    val loginID  = "SaifuTestUser"
-    val password = "SaifuTestUserPassword"
+    val loginID  = "SaifuCategoryTestUser"
+    val password = "SaifuCategoryTestUserPassword"
     val name     = "TestUserName"
     val eMail    = "saifutestuser@test.com"
     val userRequest = FakeRequest(POST, "/v1/account/user/")
@@ -79,6 +79,8 @@ class SaifuCategoryRouterTest extends PlaySpec with GuiceOneAppPerSuite {
         cookie = result.newCookies.head
         session = result.newSession.get
     }
+    var mainCategoryID = ""
+    var subCategoryID  = ""
     "Create Category" should {
       "Create Main Category" in {
         val request = FakeRequest(POST, "/v1/saifu/category/main/")
@@ -93,7 +95,10 @@ class SaifuCategoryRouterTest extends PlaySpec with GuiceOneAppPerSuite {
           )
           .withCSRFToken
         val result: Future[Result] = route(app, request).get
+        val mainCategory: SaifuMainCategoryResource =
+          Json.fromJson[SaifuMainCategoryResource](contentAsJson(result)).get
         status(result) mustBe CREATED
+        mainCategoryID = mainCategory.id
       }
       "Create Sub Category" in {
         val request = FakeRequest(POST, "/v1/saifu/category/sub/")
@@ -102,14 +107,17 @@ class SaifuCategoryRouterTest extends PlaySpec with GuiceOneAppPerSuite {
           .withSession(session.data.head)
           .withJsonBody(
             Json.obj(
-              "mainCategoryID" -> "1",
+              "mainCategoryID" -> mainCategoryID,
               "name"           -> "TestSubCategory",
               "explain"        -> "TestSubCategoryExplain"
             )
           )
           .withCSRFToken
         val result: Future[Result] = route(app, request).get
+        val subCategory: SaifuSubCategoryResource =
+          Json.fromJson[SaifuSubCategoryResource](contentAsJson(result)).get
         status(result) mustBe CREATED
+        subCategoryID = subCategory.id
       }
     }
     "Update Category" should {
@@ -120,7 +128,7 @@ class SaifuCategoryRouterTest extends PlaySpec with GuiceOneAppPerSuite {
           .withSession(session.data.head)
           .withJsonBody(
             Json.obj(
-              "id"      -> "1",
+              "id"      -> mainCategoryID,
               "name"    -> "UpdateMainCategory",
               "explain" -> "UpdateMainCategoryExplain"
             )
@@ -136,8 +144,8 @@ class SaifuCategoryRouterTest extends PlaySpec with GuiceOneAppPerSuite {
           .withSession(session.data.head)
           .withJsonBody(
             Json.obj(
-              "id"             -> "1",
-              "mainCategoryID" -> "1",
+              "id"             -> subCategoryID,
+              "mainCategoryID" -> mainCategoryID,
               "name"           -> "UpdateSubCategory",
               "explain"        -> "UpdateSubCategoryExplain"
             )

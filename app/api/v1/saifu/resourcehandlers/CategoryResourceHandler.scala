@@ -6,6 +6,7 @@ import api.v1.saifu.models.{
   UpdateMainCategoryInput,
   UpdateSubCategoryInput
 }
+import com.saifu_mlm.engine.common.ERROR_CODE
 import com.saifu_mlm.engine.saifu.{SaifuMainCategory, SaifuMainCategoryDAO, SaifuSubCategory, SaifuSubCategoryDAO}
 import javax.inject.Inject
 import play.api.MarkerContext
@@ -92,14 +93,22 @@ class SaifuCategoryResourceHandler @Inject() (
     */
   def createMain(tenantID: String, createMainInput: CreateMainCategoryInput)(implicit
       mc: MarkerContext
-  ): Future[Int] = {
-    saifuMainCategoryDAO.create(
-      SaifuMainCategory(
-        tenantID = tenantID,
-        name = createMainInput.name,
-        explain = createMainInput.explain
+  ): Future[Option[SaifuMainCategoryResource]] = {
+    saifuMainCategoryDAO
+      .create(
+        SaifuMainCategory(
+          tenantID = tenantID,
+          name = createMainInput.name,
+          explain = createMainInput.explain
+        )
       )
-    )
+      .map(result =>
+        if (result == ERROR_CODE) {
+          None
+        } else {
+          Some(SaifuMainCategoryResource(result.toString, createMainInput.name, Option(createMainInput.explain)))
+        }
+      )
   }
 
   /**
@@ -129,15 +138,32 @@ class SaifuCategoryResourceHandler @Inject() (
     * @param mc MarkerContext
     * @return
     */
-  def createSub(tenantID: String, createSubInput: CreateSubCategoryInput)(implicit mc: MarkerContext): Future[Int] = {
-    saifuSubcategoryDAO.create(
-      SaifuSubCategory(
-        saifuMainCategoryID = createSubInput.mainCategoryID,
-        tenantID = tenantID,
-        name = createSubInput.name,
-        explain = createSubInput.explain
+  def createSub(tenantID: String, createSubInput: CreateSubCategoryInput)(implicit
+      mc: MarkerContext
+  ): Future[Option[SaifuSubCategoryResource]] = {
+    saifuSubcategoryDAO
+      .create(
+        SaifuSubCategory(
+          saifuMainCategoryID = createSubInput.mainCategoryID,
+          tenantID = tenantID,
+          name = createSubInput.name,
+          explain = createSubInput.explain
+        )
       )
-    )
+      .map(result =>
+        if (result == ERROR_CODE) {
+          None
+        } else {
+          Some(
+            SaifuSubCategoryResource(
+              id = result.toString,
+              mainCategoryID = createSubInput.mainCategoryID,
+              name = createSubInput.name,
+              explain = Option(createSubInput.explain)
+            )
+          )
+        }
+      )
   }
 
   /**
