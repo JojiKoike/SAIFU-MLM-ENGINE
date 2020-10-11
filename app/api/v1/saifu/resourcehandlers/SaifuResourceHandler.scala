@@ -32,19 +32,22 @@ class SaifuResourceHandler @Inject() (saifuDAO: SaifuDAO)(implicit ec: Execution
       )
   }
 
-  def create(userID: String, createSaifuInput: CreateSaifuInput)(implicit mc: MarkerContext): Future[Int] = {
-    saifuDAO.create(
-      Saifu(
-        subCategoryID = createSaifuInput.subCategoryID,
-        userID = userID,
-        name = createSaifuInput.name,
-        explain = createSaifuInput.explain,
-        balance = createSaifuInput.initialBalance
+  def create(userID: String, createSaifuInput: CreateSaifuInput)(implicit
+      mc: MarkerContext
+  ): Future[Int] = {
+    saifuDAO
+      .create(
+        Saifu(
+          subCategoryID = createSaifuInput.subCategoryID,
+          userID = userID,
+          name = createSaifuInput.name,
+          explain = createSaifuInput.explain,
+          balance = createSaifuInput.initialBalance
+        )
       )
-    )
   }
 
-  def update(userID: String, updateSaifuInput: UpdateSaifuInput)(implicit mc: MarkerContext): Future[Any] = {
+  def update(userID: String, updateSaifuInput: UpdateSaifuInput)(implicit mc: MarkerContext): Future[Int] = {
     saifuDAO.update(
       Saifu(
         updateSaifuInput.saifuID,

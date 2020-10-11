@@ -44,7 +44,7 @@ class SaifuCategoryRouterTest extends PlaySpec with GuiceOneAppPerSuite {
     val loginID  = "SaifuCategoryTestUser"
     val password = "SaifuCategoryTestUserPassword"
     val name     = "TestUserName"
-    val eMail    = "saifutestuser@test.com"
+    val eMail    = "saifucategorytestuser@test.com"
     val userRequest = FakeRequest(POST, "/v1/account/user/")
       .withHeaders(HOST -> "localhost:9000")
       .withJsonBody(
@@ -157,7 +157,7 @@ class SaifuCategoryRouterTest extends PlaySpec with GuiceOneAppPerSuite {
     }
     "Read Category" should {
       "Read One Saifu Category Data" in {
-        val request = FakeRequest(GET, "/v1/saifu/category/1/")
+        val request = FakeRequest(GET, s"/v1/saifu/category/$mainCategoryID/")
           .withHeaders(HOST -> "localhost:9000")
           .withCookies(cookie)
           .withSession(session.data.head)

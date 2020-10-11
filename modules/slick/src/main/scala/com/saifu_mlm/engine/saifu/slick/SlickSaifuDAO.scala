@@ -20,60 +20,62 @@ class SlickSaifuDAO @Inject() (db: Database)(implicit ec: ExecutionContext) exte
 
   override def lookup(userID: String, id: String): Future[Option[Saifu]] = {
     db.run(
-      MSaifu
-        .join(TSaifuHistories)
-        .on(_.id === _.saifuId)
-        .filter {
-          case (t1, t2) =>
-            !t1.deleteFlag &&
-            !t2.deleteFlag &&
-            !t1.saifuSubCategoryId.isEmpty &&
-            t1.userId === string2UUID(userID) &&
-            t1.id === string2UUID(id) &&
-            t2.initialRecordFlag
-        }
-        .map {
-          case (t1, t2) =>
-            (
-              t1.id.toString,
-              t1.saifuSubCategoryId.toString,
-              t1.userId.toString,
-              t1.name,
-              t1.explain.toString,
-              t2.balance
-            ) <> (Saifu.tupled, Saifu.unapply)
-        }
-        .result
-        .headOption
-    )
+        MSaifu
+          .join(TSaifuHistories)
+          .on(_.id === _.saifuId)
+          .filter {
+            case (t1, t2) =>
+              !t1.deleteFlag &&
+              !t2.deleteFlag &&
+              !t1.saifuSubCategoryId.isEmpty &&
+              t1.userId === string2UUID(userID) &&
+              t1.id === string2UUID(id) &&
+              t2.initialRecordFlag
+          }
+          .result
+          .headOption
+      )
+      .map(mayBeRow =>
+        mayBeRow.map(t =>
+          Saifu(
+            t._1.id.toString,
+            t._1.saifuSubCategoryId.getOrElse("").toString,
+            t._1.userId.getOrElse("").toString,
+            t._1.name,
+            t._1.explain.getOrElse(""),
+            t._2.balance
+          )
+        )
+      )
   }
 
   override def all(userID: String): Future[Seq[Saifu]] = {
     db.run(
-      MSaifu
-        .join(TSaifuHistories)
-        .on(_.id === _.saifuId)
-        .filter {
-          case (t1, t2) =>
-            !t1.deleteFlag &&
-            !t2.deleteFlag &&
-            !t1.saifuSubCategoryId.isEmpty &&
-            t1.userId === string2UUID(userID) &&
-            t2.initialRecordFlag
-        }
-        .map {
-          case (t1, t2) =>
-            (
-              t1.id.toString,
-              t1.saifuSubCategoryId.toString,
-              t1.userId.toString,
-              t1.name,
-              t1.explain.toString,
-              t2.balance
-            ) <> (Saifu.tupled, Saifu.unapply)
-        }
-        .result
-    )
+        MSaifu
+          .join(TSaifuHistories)
+          .on(_.id === _.saifuId)
+          .filter {
+            case (t1, t2) =>
+              !t1.deleteFlag &&
+              !t2.deleteFlag &&
+              !t1.saifuSubCategoryId.isEmpty &&
+              t1.userId === string2UUID(userID) &&
+              t2.initialRecordFlag
+          }
+          .result
+      )
+      .map(results =>
+        results.map(t =>
+          Saifu(
+            t._1.id.toString,
+            t._1.saifuSubCategoryId.getOrElse("").toString,
+            t._1.userId.getOrElse("").toString,
+            t._1.name,
+            t._1.explain.getOrElse(""),
+            t._2.balance
+          )
+        )
+      )
   }
 
   override def create(saifu: Saifu): Future[Int] = {
@@ -124,39 +126,37 @@ class SlickSaifuDAO @Inject() (db: Database)(implicit ec: ExecutionContext) exte
 
   override def update(saifu: Saifu): Future[Int] = {
     val querySaifu =
-      MSaifu.filter { item =>
-        !item.deleteFlag &&
-        item.userId === string2UUID(saifu.userID) &&
-        item.id === string2UUID(saifu.id)
-      }
+      (userID: String, saifuID: String) =>
+        MSaifu.filter { item =>
+          !item.deleteFlag &&
+          item.userId === string2UUID(userID)
+          item.id === string2UUID(saifuID)
+        }
 
-    val queryHistory =
+    val queryHistory = (saifuID: String) =>
       TSaifuHistories.filter { item =>
         !item.deleteFlag &&
         item.initialRecordFlag &&
-        item.saifuId === string2UUID(saifu.id)
+        item.saifuId === string2UUID(saifuID)
       }
 
     db.run(
-      querySaifu.exists.result.flatMap {
+      querySaifu(saifu.userID, saifu.id).exists.result.flatMap {
         case false => DBIO.successful(ERROR_CODE)
         case true  =>
           // Update MSaifu
-          querySaifu
+          querySaifu(saifu.userID, saifu.id)
             .map(target => (target.saifuSubCategoryId, target.name, target.explain))
             .update(Option(saifu.subCategoryID.toInt), saifu.name, Option(saifu.explain))
             .andThen {
               // Get Before Update Value
-              queryHistory
+              queryHistory(saifu.id)
                 .map(_.balance)
                 .result
                 .head
                 .flatMap { initialBalance =>
                   val delta = saifu.balance - initialBalance
-                  TSaifuHistories
-                    .filter(target => !target.deleteFlag && target.saifuId === string2UUID(saifu.id))
-                    .map(_.balance)
-                    .update(+delta)
+                  sqlu"update t_saifu_histories set balance = balance + $delta where delete_flag = false and saifu_id::text = ${saifu.id}"
                 }
             }
       }.transactionally

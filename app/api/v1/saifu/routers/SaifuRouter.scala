@@ -8,7 +8,7 @@ import play.api.routing.sird._
 
 class SaifuRouter @Inject() (controller: SaifuController) extends SimpleRouter {
   override def routes: Routes = {
-    case (p"/") =>
+    case GET(p"/") =>
       controller.index
 
     case GET(p"/$id") =>

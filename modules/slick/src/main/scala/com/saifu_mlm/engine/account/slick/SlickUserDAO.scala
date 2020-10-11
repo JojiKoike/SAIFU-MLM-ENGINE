@@ -23,7 +23,7 @@ class SlickUserDAO @Inject() (db: Database)(implicit ec: ExecutionContext) exten
   override def create(user: User): Future[Int] = {
     db.run(
       (MUsers.map(item => (item.id, item.tenantId, item.roleId, item.loginId, item.name, item.password, item.`e-mail`))
-        += (string2UUID(user.tenantId),
+        += (UUID.randomUUID(),
           Option(string2UUID(user.tenantId)),
           Option(string2UUID(user.roleId)),
           user.loginId, user.name, user.password, user.eMail)).transactionally

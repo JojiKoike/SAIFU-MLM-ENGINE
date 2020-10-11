@@ -1,6 +1,6 @@
 package api.v1.saifu.controllers
 
-import api.v1.common.{someRemover, RequestMarkerContext, SaifuDefaultActionBuilder}
+import api.v1.common.{someRemover, ERROR_CODE, RequestMarkerContext, SaifuDefaultActionBuilder}
 import api.v1.saifu.models.Saifu
 import api.v1.saifu.resourcehandlers.SaifuResourceHandler
 import javax.inject.Inject
@@ -22,7 +22,7 @@ class SaifuController @Inject() (scc: SaifuControllerComponents)(implicit ec: Ex
       logger.trace("index: ")
       request.userResource match {
         case Some(userResource) =>
-          saifuResourceHandler.all(someRemover(userResource.id)).map { items =>
+          saifuResourceHandler.all(userResource.id).map { items =>
             Ok(Json.toJson(items))
           }
         case None =>
@@ -36,8 +36,9 @@ class SaifuController @Inject() (scc: SaifuControllerComponents)(implicit ec: Ex
       logger.trace(s"show: $saifuID")
       request.userResource match {
         case Some(userResource) =>
-          saifuResourceHandler.lookup(someRemover(userResource.id), saifuID).map { saifu =>
-            Ok(Json.toJson(saifu))
+          saifuResourceHandler.lookup(userResource.id, saifuID).map {
+            case Some(saifu) => Ok(Json.toJson(saifu))
+            case None        => NotFound
           }
         case None =>
           logger.error("Unauthorized")
@@ -56,9 +57,13 @@ class SaifuController @Inject() (scc: SaifuControllerComponents)(implicit ec: Ex
           request.userResource match {
             case Some(userResource) =>
               saifuResourceHandler
-                .create(someRemover(userResource.id), success)
-                .map { _ =>
-                  Created
+                .create(userResource.id, success)
+                .map { value =>
+                  if (value == ERROR_CODE) {
+                    BadRequest
+                  } else {
+                    Created
+                  }
                 }
             case None =>
               logger.error("Unauthorized")
