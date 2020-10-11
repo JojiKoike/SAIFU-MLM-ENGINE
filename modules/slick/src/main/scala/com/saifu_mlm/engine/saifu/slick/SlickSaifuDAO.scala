@@ -2,7 +2,7 @@ package com.saifu_mlm.engine.saifu.slick
 
 import java.util.UUID
 
-import com.saifu_mlm.engine.common.{string2UUID, ERROR_CODE}
+import com.saifu_mlm.engine.common.{string2UUID, ERROR_CODE, UPDATE_SUCCESS_CODE}
 import com.saifu_mlm.engine.saifu.{Saifu, SaifuDAO}
 import com.saifu_mlm.infrastructure.db.slick.Tables
 import javax.inject.Inject
@@ -156,7 +156,12 @@ class SlickSaifuDAO @Inject() (db: Database)(implicit ec: ExecutionContext) exte
                 .head
                 .flatMap { initialBalance =>
                   val delta = saifu.balance - initialBalance
-                  sqlu"update t_saifu_histories set balance = balance + $delta where delete_flag = false and saifu_id::text = ${saifu.id}"
+                  // Prevent Running Update in case delta = 0
+                  if (delta > 0 || delta < 0) {
+                    sqlu"update t_saifu_histories set balance = balance + $delta where delete_flag = false and saifu_id::text = ${saifu.id}"
+                  } else {
+                    DBIO.successful(UPDATE_SUCCESS_CODE)
+                  }
                 }
             }
       }.transactionally

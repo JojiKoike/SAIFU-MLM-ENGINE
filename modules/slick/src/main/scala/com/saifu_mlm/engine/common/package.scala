@@ -4,7 +4,9 @@ import java.util.UUID
 
 package object common {
 
-  val ERROR_CODE = -1
+  val UPDATE_SUCCESS_CODE: Int = 1
+
+  val ERROR_CODE: Int = -1
 
   val string2UUID: String => UUID = (id: String) => UUID.fromString(id)
 
