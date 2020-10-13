@@ -14,7 +14,7 @@ object Saifu {
       "subCategoryID"  -> nonEmptyText,
       "name"           -> nonEmptyText,
       "explain"        -> text,
-      "initialBalance" -> longNumber
+      "initialBalance" -> longNumber(min = 0)
     )(CreateSaifuInput.apply)(CreateSaifuInput.unapply)
   }
 
