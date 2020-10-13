@@ -8,7 +8,14 @@ import play.api.libs.json.{Format, Json}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class SaifuResource(id: String, subCategoryID: String, name: String, explain: String, balance: Long)
+case class SaifuResource(
+    id: String,
+    subCategoryID: String,
+    name: String,
+    explain: String,
+    initialBalance: Long,
+    currentBalance: Long
+)
 
 object SaifuResource {
   implicit val format: Format[SaifuResource] = Json.format
@@ -20,7 +27,9 @@ class SaifuResourceHandler @Inject() (saifuDAO: SaifuDAO)(implicit ec: Execution
     saifuDAO
       .lookup(userID, saifuID)
       .map(mayBeItem =>
-        mayBeItem.map(item => SaifuResource(item.id, item.subCategoryID, item.name, item.explain, item.balance))
+        mayBeItem.map(item =>
+          SaifuResource(item.id, item.subCategoryID, item.name, item.explain, item.initialBalance, item.currentBalance)
+        )
       )
   }
 
@@ -28,7 +37,9 @@ class SaifuResourceHandler @Inject() (saifuDAO: SaifuDAO)(implicit ec: Execution
     saifuDAO
       .all(userID)
       .map(items =>
-        items.map(item => SaifuResource(item.id, item.subCategoryID, item.name, item.explain, item.balance))
+        items.map(item =>
+          SaifuResource(item.id, item.subCategoryID, item.name, item.explain, item.initialBalance, item.currentBalance)
+        )
       )
   }
 
@@ -42,7 +53,8 @@ class SaifuResourceHandler @Inject() (saifuDAO: SaifuDAO)(implicit ec: Execution
           userID = userID,
           name = createSaifuInput.name,
           explain = createSaifuInput.explain,
-          balance = createSaifuInput.initialBalance
+          initialBalance = createSaifuInput.initialBalance,
+          currentBalance = createSaifuInput.initialBalance
         )
       )
   }

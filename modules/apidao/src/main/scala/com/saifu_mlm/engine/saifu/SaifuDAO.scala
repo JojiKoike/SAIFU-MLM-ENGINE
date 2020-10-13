@@ -34,5 +34,6 @@ case class Saifu(
     userID: String,
     name: String,
     explain: String = "",
-    balance: Long = 0
+    initialBalance: Long = 0,
+    currentBalance: Long = 0
 )

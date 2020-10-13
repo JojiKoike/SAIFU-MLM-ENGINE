@@ -1,6 +1,6 @@
 -- Setup Function
 -- Update TimeStamp when
-CREATE FUNCTION set_update_time() RETURNS opaque AS '
+CREATE FUNCTION set_update_time() RETURNS trigger AS '
   begin
     new.updated_at := ''now'';
     return new;
@@ -75,6 +75,8 @@ CREATE TABLE m_saifu (
     "saifu_sub_category_id" integer REFERENCES m_saifu_sub_categories(id) ON DELETE SET NULL ON UPDATE CASCADE,
     "name" varchar(50) NOT NULL,
     "explain" TEXT,
+    "initial_balance" bigint NOT NULL,
+    "current_balance" bigint NOT NULL,
     "delete_flag" boolean NOT NULL DEFAULT FALSE,
     "created_at" timestamp with time zone NOT NULL DEFAULT current_timestamp,
     "updated_at" timestamp with time zone
@@ -363,7 +365,6 @@ CREATE TRIGGER update_tri BEFORE UPDATE ON t_debt_item_histories FOR EACH ROW
 CREATE TABLE t_saifu_histories (
     "id" uuid PRIMARY KEY,
     "saifu_id" uuid REFERENCES m_saifu(id) ON DELETE SET NULL ON UPDATE CASCADE,
-    "initial_record_flag" boolean NOT NULL DEFAULT FALSE,
     "income_id" uuid,
     "expense_id" uuid,
     "investment_id" uuid,
