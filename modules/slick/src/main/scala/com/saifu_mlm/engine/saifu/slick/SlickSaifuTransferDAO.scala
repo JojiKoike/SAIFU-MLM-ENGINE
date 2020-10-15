@@ -37,6 +37,9 @@ class SlickSaifuTransferDAO @Inject() (db: Database)(implicit ec: ExecutionConte
         item._2.id === userID
       )
 
+  private val mSaifuQueryByID =
+    (saifuID: Rep[UUID]) => MSaifu.filter(item => !item.deleteFlag && item.id === saifuID)
+
   override def lookup(userID: String, saifuID: String): Future[Seq[SaifuTransfer]] = {
     db.run(
         queryByUserID(string2UUID(userID))
@@ -88,9 +91,6 @@ class SlickSaifuTransferDAO @Inject() (db: Database)(implicit ec: ExecutionConte
 
   override def create(saifuTransfer: SaifuTransfer): Future[Int] = {
 
-    val mSaifuQueryByID =
-      (saifuID: Rep[UUID]) => MSaifu.filter(item => !item.deleteFlag && item.id === saifuID)
-
     var newFromSaifuCurrentBalance: Long = 0
     var newToSaifuCurrentBalance: Long   = 0
     db.run(
@@ -121,12 +121,17 @@ class SlickSaifuTransferDAO @Inject() (db: Database)(implicit ec: ExecutionConte
           }
           .andThen {
             // Create From Saifu History Record
-            TSaifuHistories
-              .map(item => (item.saifuId, item.saifuTransferId, item.outcome, item.balance)) +=
-              (Option(string2UUID(saifuTransfer.fromSaifuID)),
-              Option(saifuTransferID),
-              saifuTransfer.amount,
-              newFromSaifuCurrentBalance)
+            TSaifuHistories +=
+              TSaifuHistoriesRow(
+                id = UUID.randomUUID(),
+                saifuId = Option(string2UUID(saifuTransfer.fromSaifuID)),
+                saifuTransferId = Option(saifuTransferID),
+                income = 0L,
+                outcome = saifuTransfer.amount,
+                balance = newFromSaifuCurrentBalance,
+                transactionDate = saifuTransfer.transactionDate,
+                createdAt = DateTime.now()
+              )
           }
           .andThen {
             // Get To Saifu current balance
@@ -143,19 +148,156 @@ class SlickSaifuTransferDAO @Inject() (db: Database)(implicit ec: ExecutionConte
               }
               .andThen {
                 // Create To Saifu History Record
-                TSaifuHistories
-                  .map(item => (item.saifuId, item.saifuTransferId, item.income, item.balance)) +=
-                  (Option(string2UUID(saifuTransfer.toSaifuID)),
-                  Option(saifuTransferID),
-                  saifuTransfer.amount,
-                  newToSaifuCurrentBalance)
+                TSaifuHistories +=
+                  TSaifuHistoriesRow(
+                    id = UUID.randomUUID(),
+                    saifuId = Option(string2UUID(saifuTransfer.toSaifuID)),
+                    saifuTransferId = Option(saifuTransferID),
+                    income = saifuTransfer.amount,
+                    outcome = 0L,
+                    balance = newToSaifuCurrentBalance,
+                    transactionDate = saifuTransfer.transactionDate,
+                    createdAt = DateTime.now()
+                  )
               }
           }
       }.transactionally
     )
   }
 
-  override def update(saifuTransfer: SaifuTransfer): Future[Int] = ???
+  override def update(saifuTransfer: SaifuTransfer): Future[Int] =
+    db.run(
+      TSaifuTransfers
+        .filter(item =>
+          !item.deleteFlag &&
+          item.id === string2UUID(saifuTransfer.id)
+        )
+        .result
+        .head
+        .flatMap { oldSaifuTransfer =>
+          // Rollback Stage
+          // Delete From-Saifu History Record
+          TSaifuHistories
+            .filter(target =>
+              !target.deleteFlag &&
+              target.saifuTransferId === string2UUID(saifuTransfer.id) &&
+              target.saifuId === oldSaifuTransfer.fromSaifuId
+            )
+            .map(_.deleteFlag)
+            .update(true)
+            .andThen {
+              // Rollback From Saifu Current Balance
+              mSaifuQueryByID(oldSaifuTransfer.fromSaifuId.get)
+                .map(_.currentBalance)
+                .result
+                .head
+                .flatMap { orgCurrentBalance =>
+                  mSaifuQueryByID(oldSaifuTransfer.fromSaifuId.get)
+                    .map(_.currentBalance)
+                    .update(orgCurrentBalance + oldSaifuTransfer.amount)
+                }
+            }
+            .andThen {
+              // Rollback From Saifu History Records After Transfer Transaction Date
+              sqlu"update t_saifu_histories set balance = balance + ${oldSaifuTransfer.amount} where delete_flag = false and saifu_id::text = ${oldSaifuTransfer.fromSaifuId} and transaction_date > ${oldSaifuTransfer.transactionDate}"
+            }
+            .andThen {
+              // Delete To-Saifu History Record
+              TSaifuHistories
+                .filter(target =>
+                  !target.deleteFlag &&
+                  target.saifuTransferId === string2UUID(saifuTransfer.id) &&
+                  target.saifuId === oldSaifuTransfer.toSaifuId
+                )
+                .map(_.deleteFlag)
+                .update(true)
+            }
+            .andThen {
+              // Rollback To Saifu Current Balance
+              mSaifuQueryByID(oldSaifuTransfer.toSaifuId.get)
+                .map(_.currentBalance)
+                .result
+                .head
+                .flatMap { orgCurrentBalance =>
+                  mSaifuQueryByID(oldSaifuTransfer.toSaifuId.get)
+                    .map(_.currentBalance)
+                    .update(orgCurrentBalance - oldSaifuTransfer.amount)
+                }
+            }
+            .andThen {
+              // Rollback To-Saifu History Record
+              sqlu"update t_saifu_histories set balance = balance - ${oldSaifuTransfer.amount} where delete_flag = false and saifu_id::text = ${oldSaifuTransfer.toSaifuId.get.toString} and transaction_date > ${oldSaifuTransfer.transactionDate}"
+            }
+            .andThen {
+              // Update Stage
+              // Update From-Saifu Current Balance and Create History Record
+              mSaifuQueryByID(string2UUID(saifuTransfer.fromSaifuID))
+                .map(_.currentBalance)
+                .result
+                .head
+                .flatMap {
+                  orgCurrentBalance =>
+                    // Update New From-Saifu Current Balance
+                    mSaifuQueryByID(string2UUID(saifuTransfer.fromSaifuID))
+                      .map(_.currentBalance)
+                      .update(orgCurrentBalance - saifuTransfer.amount)
+                      .andThen {
+                        // Create New From-Saifu History Record
+                        TSaifuHistories +=
+                          TSaifuHistoriesRow(
+                            id = UUID.randomUUID(),
+                            saifuId = Option(string2UUID(saifuTransfer.fromSaifuID)),
+                            saifuTransferId = Option(string2UUID(saifuTransfer.id)),
+                            income = 0L,
+                            outcome = saifuTransfer.amount,
+                            balance = orgCurrentBalance - saifuTransfer.amount,
+                            transactionDate = saifuTransfer.transactionDate,
+                            createdAt = DateTime.now()
+                          )
+                      }
+                      .andThen {
+                        sqlu"update t_saifu_histories set balance = balance - ${saifuTransfer.amount} where delete_flag = false and saifu_id::text = ${saifuTransfer.fromSaifuID} and transaction_date > ${saifuTransfer.transactionDate}"
+                      }
+                }
+            }
+            .andThen {
+              // Update From-Saifu Current Balance and Create History Record
+              mSaifuQueryByID(string2UUID(saifuTransfer.toSaifuID))
+                .map(_.currentBalance)
+                .result
+                .head
+                .flatMap {
+                  orgCurrentBalance =>
+                    // Update New From-Saifu Current Balance
+                    mSaifuQueryByID(string2UUID(saifuTransfer.toSaifuID))
+                      .map(_.currentBalance)
+                      .update(orgCurrentBalance + saifuTransfer.amount)
+                      .andThen {
+                        // Create New From-Saifu History Record
+                        TSaifuHistories +=
+                          TSaifuHistoriesRow(
+                            id = UUID.randomUUID(),
+                            saifuId = Option(string2UUID(saifuTransfer.toSaifuID)),
+                            saifuTransferId = Option(string2UUID(saifuTransfer.id)),
+                            income = saifuTransfer.amount,
+                            outcome = 0L,
+                            balance = orgCurrentBalance + saifuTransfer.amount,
+                            transactionDate = saifuTransfer.transactionDate,
+                            createdAt = DateTime.now()
+                          )
+                      }
+                      .andThen {
+                        sqlu"update t_saifu_histories set balance = balance + ${saifuTransfer.amount} where delete_flag = false and saifu_id::text = ${saifuTransfer.toSaifuID} and transaction_date > ${saifuTransfer.transactionDate}"
+                      }
+                }
+            }
+            .andThen {
+              // Update SaifuTransfer Record
+              sqlu"update t_saifu_transfers set from_saifu_id = ${saifuTransfer.fromSaifuID}, to_saifu_id = ${saifuTransfer.toSaifuID}, amount = ${saifuTransfer.amount}, comment = ${saifuTransfer.comment}, transaction_date = ${saifuTransfer.transactionDate} where delete_flag = false and id::text = ${saifuTransfer.id}"
+            }
+            .transactionally
+        }
+    )
 
   override def close(): Future[Unit] = {
     Future.successful(db.close())
