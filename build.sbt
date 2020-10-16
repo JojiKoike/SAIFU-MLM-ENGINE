@@ -75,6 +75,10 @@ lazy val slick = (project in file("modules/slick"))
         override def code =
           "import com.github.tototoshi.slick.PostgresJodaSupport._\n" +
           "import org.joda.time.DateTime\n" +
+          "implicit val jodatimeColumnType = MappedColumnType.base[DateTime, Timestamp](\n" +
+          " {jodatime => new Timestamp(jodatime.getMillis())},\n" +
+          " {sqltime => new DateTime(sqltime.getTime)} \n" +
+          ")\n" +
           super.code
 
         override def Table =
