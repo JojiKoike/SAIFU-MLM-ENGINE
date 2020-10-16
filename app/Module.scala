@@ -1,8 +1,13 @@
 import com.google.inject.AbstractModule
 import com.saifu_mlm.engine.account.{RoleDAO, TenantDAO, UserDAO}
 import com.saifu_mlm.engine.account.slick.{SlickRoleDAO, SlickTenantDAO, SlickUserDAO}
-import com.saifu_mlm.engine.saifu.{SaifuDAO, SaifuMainCategoryDAO, SaifuSubCategoryDAO}
-import com.saifu_mlm.engine.saifu.slick.{SlickSaifuDAO, SlickSaifuMainCategoryDAO, SlickSaifuSubCategoryDAO}
+import com.saifu_mlm.engine.saifu.{SaifuDAO, SaifuMainCategoryDAO, SaifuSubCategoryDAO, SaifuTransferDAO}
+import com.saifu_mlm.engine.saifu.slick.{
+  SlickSaifuDAO,
+  SlickSaifuMainCategoryDAO,
+  SlickSaifuSubCategoryDAO,
+  SlickSaifuTransferDAO
+}
 import com.typesafe.config.Config
 import javax.inject.{Inject, Provider, Singleton}
 import play.api.inject.ApplicationLifecycle
@@ -23,6 +28,7 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
     bind(classOf[SaifuMainCategoryDAO]).to(classOf[SlickSaifuMainCategoryDAO])
     bind(classOf[SaifuSubCategoryDAO]).to(classOf[SlickSaifuSubCategoryDAO])
     bind(classOf[SaifuDAO]).to(classOf[SlickSaifuDAO])
+    bind(classOf[SaifuTransferDAO]).to(classOf[SlickSaifuTransferDAO])
     bind(classOf[DAOCloseHook]).asEagerSingleton()
     bind(classOf[ClusterSystem]).asEagerSingleton()
     bindTypedActor(SessionCache(), "replicatedCache")
@@ -40,6 +46,7 @@ class DAOCloseHook @Inject() (
     saifuMainCategoryDAO: SaifuMainCategoryDAO,
     saifuSubCategoryDAO: SaifuSubCategoryDAO,
     saifuDAO: SaifuDAO,
+    saifuTransferDAO: SaifuTransferDAO,
     lifeCycle: ApplicationLifecycle
 ) {
   lifeCycle.addStopHook { () =>
@@ -50,6 +57,7 @@ class DAOCloseHook @Inject() (
       saifuMainCategoryDAO.close()
       saifuSubCategoryDAO.close()
       saifuDAO.close()
+      saifuTransferDAO.close()
     }
   }
 }
