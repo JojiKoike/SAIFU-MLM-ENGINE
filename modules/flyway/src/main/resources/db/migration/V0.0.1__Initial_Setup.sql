@@ -1,5 +1,5 @@
 -- Enable Extension
-CREATE EXTENSION pgcrypto;
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 -- Setup Function
 -- Update TimeStamp when
