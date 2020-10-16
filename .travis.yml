@@ -22,7 +22,7 @@ before_script:
 - psql -c "CREATE ROLE saifu_mlm_engine_db_user LOGIN PASSWORD 'password';" -U postgres
 - psql -c "CREATE DATABASE saifu_mlm_engine_db;" -U postgres
 - psql -c "GRANT ALL PRIVILEGES ON DATABASE saifu_mlm_engine_db TO saifu_mlm_engine_db_user;" -U postgres
-- psql -c "CREATE EXTENSION pgcrypto;" -U postgres
+- psql -c "ALTER ROLE saifu_mlm_engine_db_user SUPERUSER;" -U postgres
 - sbt flyway/flywayMigrate
 deploy:
   provider: heroku

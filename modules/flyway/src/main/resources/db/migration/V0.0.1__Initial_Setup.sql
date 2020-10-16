@@ -1,3 +1,6 @@
+-- Enable Extension
+CREATE EXTENSION pgcrypto;
+
 -- Setup Function
 -- Update TimeStamp when
 CREATE FUNCTION set_update_time() RETURNS trigger AS '
