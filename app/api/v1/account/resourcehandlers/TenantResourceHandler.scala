@@ -21,7 +21,7 @@ class TenantResourceHandler @Inject() (
 )(implicit ec: ExecutionContext) {
   def create(createTenantInput: CreateTenantInput)(implicit mc: MarkerContext): Future[TenantResource] = {
     tenantDAO
-      .create(Tenant(UUID.randomUUID.toString, createTenantInput.name, Option(createTenantInput.explain)))
+      .create(Tenant(name = createTenantInput.name, explain = Option(createTenantInput.explain)))
       .map(createTenantResource)
   }
 

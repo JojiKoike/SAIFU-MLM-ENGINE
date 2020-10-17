@@ -30,7 +30,6 @@ class UserResourceHandler @Inject() (
       case Success(encryptedPassword) =>
         userDAO.create(
           User(
-            id = UUID.randomUUID.toString,
             tenantId = createUserInput.tenantId,
             roleId = createUserInput.roleId,
             loginId = createUserInput.loginId,
@@ -56,10 +55,9 @@ class UserResourceHandler @Inject() (
         {
           loginInput.password.isBcryptedSafeBounded(userData.password) match {
             case Success(true) => Some(createUserResource(userData))
-            case Failure(exception) => {
+            case Failure(exception) =>
               logger.error(exception.getMessage)
               None
-            }
           }
         }
       }

@@ -21,7 +21,7 @@ class RoleResourceHandler @Inject() (
 )(implicit ec: ExecutionContext) {
   def create(createRoleInput: CreateRoleInput)(implicit mc: MarkerContext): Future[RoleResource] = {
     roleDAO
-      .create(Role(UUID.randomUUID.toString, createRoleInput.name, Option(createRoleInput.explain)))
+      .create(Role(name = createRoleInput.name, explain = Option(createRoleInput.explain)))
       .map(createRoleResource)
   }
 

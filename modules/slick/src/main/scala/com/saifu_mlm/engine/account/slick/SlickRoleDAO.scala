@@ -50,8 +50,8 @@ class SlickRoleDAO @Inject() (db: Database)(implicit ec: ExecutionContext) exten
   override def create(role: Role): Future[Role] = {
     db.run(
       (MRoles
-        .map(item => (item.id, item.name, item.explain))
-        += (string2UUID(role.id), role.name, role.explain))
+        .map(item => (item.name, item.explain))
+        += (role.name, role.explain))
         .andThen(
           MRoles
             .filter(_.name === role.name)

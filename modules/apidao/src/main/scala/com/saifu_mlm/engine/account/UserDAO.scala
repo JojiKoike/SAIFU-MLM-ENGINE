@@ -34,7 +34,7 @@ trait UserDAO {
   * @param eMail - E-Mail
   */
 case class User(
-    id: String,
+    id: String = "",
     tenantId: String,
     roleId: String,
     loginId: String,

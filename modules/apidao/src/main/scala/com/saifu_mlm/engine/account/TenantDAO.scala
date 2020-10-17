@@ -30,12 +30,9 @@ trait TenantDAO {
   * @param id tenant id
   * @param name tenant name
   * @param explain tenant explain
-  * @param delete_flag logical delete flag
-  * @param created created date time
-  * @param updated updated date time
   */
 case class Tenant(
-    id: String,
+    id: String = "",
     name: String,
     explain: Option[String]
 )

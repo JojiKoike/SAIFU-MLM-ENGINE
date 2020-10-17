@@ -19,7 +19,7 @@ trait RoleDAO {
 }
 
 case class Role(
-    id: String,
+    id: String = "",
     name: String,
     explain: Option[String]
 )
