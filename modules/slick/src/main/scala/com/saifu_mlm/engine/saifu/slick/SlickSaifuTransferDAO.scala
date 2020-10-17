@@ -1,5 +1,6 @@
 package com.saifu_mlm.engine.saifu.slick
 
+import java.sql.Timestamp
 import java.util.UUID
 
 import com.saifu_mlm.engine.common.string2UUID
@@ -7,8 +8,11 @@ import com.saifu_mlm.engine.saifu.{SaifuTransfer, SaifuTransferDAO}
 import com.saifu_mlm.infrastructure.db.slick.Tables
 import javax.inject.{Inject, Singleton}
 import org.joda.time.DateTime
+import java.sql.Types.VARCHAR
+
+import slick.ast.BaseTypedType
 import slick.jdbc.JdbcBackend.Database
-import slick.jdbc.JdbcProfile
+import slick.jdbc.{JdbcProfile, JdbcType, SetParameter}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -20,6 +24,19 @@ class SlickSaifuTransferDAO @Inject() (db: Database)(implicit ec: ExecutionConte
   override val profile: JdbcProfile = _root_.slick.jdbc.PostgresProfile
 
   import profile.api._
+
+  implicit val jodatimeColumnType: JdbcType[DateTime] with BaseTypedType[DateTime] =
+    MappedColumnType.base[DateTime, Timestamp](
+      { jodatime => new Timestamp(jodatime.getMillis) },
+      { sqltime => new DateTime(sqltime.getTime) }
+    )
+  implicit val dateTimeSetter: AnyRef with SetParameter[DateTime] = SetParameter[DateTime] {
+    case (dateTime, params) => params.setTimestamp(new Timestamp(dateTime.getMillis))
+  }
+  implicit val uuidSetter: AnyRef with SetParameter[Option[UUID]] = SetParameter[Option[UUID]] {
+    case (Some(uuid), params) => params.setString(uuid.toString)
+    case (None, params)       => params.setNull(VARCHAR)
+  }
 
   private val queryByUserID = (userID: Rep[UUID]) =>
     TSaifuTransfers
