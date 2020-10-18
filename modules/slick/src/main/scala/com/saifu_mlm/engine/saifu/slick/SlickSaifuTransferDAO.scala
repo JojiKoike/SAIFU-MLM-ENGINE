@@ -216,7 +216,13 @@ class SlickSaifuTransferDAO @Inject() (db: Database)(implicit ec: ExecutionConte
             }
             .andThen {
               // Rollback From Saifu History Records After Transfer Transaction Date
-              sqlu"update t_saifu_histories set balance = balance + ${oldSaifuTransfer.amount} where delete_flag = false and saifu_id::text = ${oldSaifuTransfer.fromSaifuId} and transaction_date > ${oldSaifuTransfer.transactionDate}"
+              sqlu"""update t_saifu_histories 
+                    set 
+                    balance = balance + ${oldSaifuTransfer.amount} 
+                    where 
+                    delete_flag = false 
+                    and saifu_id::text = ${oldSaifuTransfer.fromSaifuId} 
+                    and transaction_date > ${oldSaifuTransfer.transactionDate}"""
             }
             .andThen {
               // Delete To-Saifu History Record
@@ -243,7 +249,13 @@ class SlickSaifuTransferDAO @Inject() (db: Database)(implicit ec: ExecutionConte
             }
             .andThen {
               // Rollback To-Saifu History Record
-              sqlu"update t_saifu_histories set balance = balance - ${oldSaifuTransfer.amount} where delete_flag = false and saifu_id::text = ${oldSaifuTransfer.toSaifuId.get.toString} and transaction_date > ${oldSaifuTransfer.transactionDate}"
+              sqlu"""update t_saifu_histories 
+                    set 
+                    balance = balance - ${oldSaifuTransfer.amount} 
+                    where 
+                    delete_flag = false 
+                    and saifu_id::text = ${oldSaifuTransfer.toSaifuId.get.toString} 
+                    and transaction_date > ${oldSaifuTransfer.transactionDate}"""
             }
             .andThen {
               // Update Stage
@@ -273,7 +285,12 @@ class SlickSaifuTransferDAO @Inject() (db: Database)(implicit ec: ExecutionConte
                           )
                       }
                       .andThen {
-                        sqlu"update t_saifu_histories set balance = balance - ${saifuTransfer.amount} where delete_flag = false and saifu_id::text = ${saifuTransfer.fromSaifuID} and transaction_date > ${saifuTransfer.transactionDate}"
+                        sqlu"""update t_saifu_histories 
+                              set 
+                              balance = balance - ${saifuTransfer.amount} 
+                              where 
+                              delete_flag = false and saifu_id::text = ${saifuTransfer.fromSaifuID} 
+                              and transaction_date > ${saifuTransfer.transactionDate}"""
                       }
                 }
             }
@@ -304,13 +321,27 @@ class SlickSaifuTransferDAO @Inject() (db: Database)(implicit ec: ExecutionConte
                           )
                       }
                       .andThen {
-                        sqlu"update t_saifu_histories set balance = balance + ${saifuTransfer.amount} where delete_flag = false and saifu_id::text = ${saifuTransfer.toSaifuID} and transaction_date > ${saifuTransfer.transactionDate}"
+                        sqlu"""update t_saifu_histories 
+                              set balance = balance + ${saifuTransfer.amount} 
+                              where 
+                              delete_flag = false 
+                              and saifu_id::text = ${saifuTransfer.toSaifuID} 
+                              and transaction_date > ${saifuTransfer.transactionDate}"""
                       }
                 }
             }
             .andThen {
               // Update SaifuTransfer Record
-              sqlu"update t_saifu_transfers set from_saifu_id = ${saifuTransfer.fromSaifuID}, to_saifu_id = ${saifuTransfer.toSaifuID}, amount = ${saifuTransfer.amount}, comment = ${saifuTransfer.comment}, transaction_date = ${saifuTransfer.transactionDate} where delete_flag = false and id::text = ${saifuTransfer.id}"
+              sqlu"""update t_saifu_transfers 
+                    set 
+                    from_saifu_id = ${saifuTransfer.fromSaifuID}, 
+                    to_saifu_id = ${saifuTransfer.toSaifuID}, 
+                    amount = ${saifuTransfer.amount}, 
+                    comment = ${saifuTransfer.comment}, 
+                    transaction_date = ${saifuTransfer.transactionDate} 
+                    where 
+                    delete_flag = false 
+                    and id::text = ${saifuTransfer.id}"""
             }
             .transactionally
         }

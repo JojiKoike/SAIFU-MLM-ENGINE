@@ -127,7 +127,12 @@ class SlickSaifuDAO @Inject() (db: Database)(implicit ec: ExecutionContext) exte
                   )
                   .andThen {
                     if (delta != 0L) {
-                      sqlu"update t_saifu_histories set balance = balance + $delta where delete_flag = false and saifu_id::text = ${saifu.id}"
+                      sqlu"""update t_saifu_histories 
+                            set 
+                            balance = balance + $delta 
+                            where 
+                            delete_flag = false 
+                            and saifu_id::text = ${saifu.id}"""
                     } else {
                       DBIO.successful(UPDATE_SUCCESS_CODE)
                     }
