@@ -13,13 +13,13 @@ trait SaifuHistoryDAO {
       transactionDateTo: DateTime = DateTime.now()
   ): Future[Seq[SaifuHistory]]
 
-  def allTenant(
+  def tenantAll(
       tenantID: String,
       transactionDateFrom: DateTime = DateTime.now().minusYears(1),
       transactionDateTo: DateTime = DateTime.now()
   ): Future[Seq[SaifuHistory]]
 
-  def allUser(
+  def userAll(
       userID: String,
       transactionDateFrom: DateTime = DateTime.now().minusYears(1),
       transactionDateTo: DateTime = DateTime.now()
