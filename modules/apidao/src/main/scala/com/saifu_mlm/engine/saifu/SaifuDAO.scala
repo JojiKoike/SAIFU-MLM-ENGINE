@@ -26,7 +26,6 @@ trait SaifuDAO {
   * @param userID
   * @param name
   * @param explain
-  * @param balance
   */
 case class Saifu(
     id: String = "",
@@ -34,6 +33,5 @@ case class Saifu(
     userID: String,
     name: String,
     explain: String = "",
-    initialBalance: Long = 0,
-    currentBalance: Long = 0
+    initialBalance: Long = 0
 )
