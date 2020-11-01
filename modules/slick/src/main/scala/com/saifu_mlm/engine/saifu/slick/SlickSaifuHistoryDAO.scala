@@ -79,9 +79,7 @@ class SlickSaifuHistoryDAO @Inject() (db: Database)(implicit ec: ExecutionContex
               tenantName = item._2.name,
               userName = item._1._2.name,
               saifuName = item._1._1._2.name,
-              income = item._1._1._1.income,
-              outcome = item._1._1._1.outcome,
-              balance = item._1._1._1.balance,
+              transactionAmount = item._1._1._1.transactionAmount,
               transactionDate = item._1._1._1.transactionDate
             )
           )
@@ -124,9 +122,7 @@ class SlickSaifuHistoryDAO @Inject() (db: Database)(implicit ec: ExecutionContex
               tenantName = item._1._1._1.name,
               userName = item._1._1._2.name,
               saifuName = item._1._2.name,
-              income = item._2.income,
-              outcome = item._2.outcome,
-              balance = item._2.balance,
+              transactionAmount = item._2.transactionAmount,
               transactionDate = item._2.transactionDate
             )
           )
@@ -163,18 +159,17 @@ class SlickSaifuHistoryDAO @Inject() (db: Database)(implicit ec: ExecutionContex
         )
         .result
         .map(results =>
-          results.map(item =>
-            SaifuHistory(
-              id = item._2.id.toString,
-              tenantName = item._1._1._2.name,
-              userName = item._1._1._1.name,
-              saifuName = item._1._2.name,
-              income = item._2.income,
-              outcome = item._2.outcome,
-              balance = item._2.balance,
-              transactionDate = item._2.transactionDate
+          results
+            .map(item =>
+              SaifuHistory(
+                id = item._2.id.toString,
+                tenantName = item._1._1._2.name,
+                userName = item._1._1._1.name,
+                saifuName = item._1._2.name,
+                transactionAmount = item._2.transactionAmount,
+                transactionDate = item._2.transactionDate
+              )
             )
-          )
         )
     )
   }

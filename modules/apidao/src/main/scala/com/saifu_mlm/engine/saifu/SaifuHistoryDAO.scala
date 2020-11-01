@@ -34,9 +34,7 @@ trait SaifuHistoryDAO {
   * @param tenantName TenantName
   * @param userName UserName
   * @param saifuName SaifuName
-  * @param income Income Amount
-  * @param outcome Outcome Amount
-  * @param balance Current Balance
+  * @param transactionAmount Transaction Amount
   * @param transactionDate Transaction Date
   */
 case class SaifuHistory(
@@ -44,8 +42,6 @@ case class SaifuHistory(
     tenantName: String,
     userName: String,
     saifuName: String,
-    income: Long = 0,
-    outcome: Long = 0,
-    balance: Long = 0,
+    transactionAmount: Long,
     transactionDate: DateTime
 )
