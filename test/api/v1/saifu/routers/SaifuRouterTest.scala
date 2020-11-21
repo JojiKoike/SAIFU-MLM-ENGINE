@@ -164,7 +164,6 @@ class SaifuRouterTest extends PlaySpec with GuiceOneAppPerSuite {
         saifu.name mustBe saifuName
         saifu.explain mustBe saifuExplain
         saifu.initialBalance mustBe initialBalance
-        saifu.currentBalance mustBe initialBalance
       }
 
       "Update Saifu" in {

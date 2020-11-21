@@ -13,8 +13,7 @@ case class SaifuResource(
     subCategoryID: String,
     name: String,
     explain: String,
-    initialBalance: Long,
-    currentBalance: Long
+    initialBalance: Long
 )
 
 object SaifuResource {
@@ -28,7 +27,7 @@ class SaifuResourceHandler @Inject() (saifuDAO: SaifuDAO)(implicit ec: Execution
       .lookup(userID, saifuID)
       .map(mayBeItem =>
         mayBeItem.map(item =>
-          SaifuResource(item.id, item.subCategoryID, item.name, item.explain, item.initialBalance, item.currentBalance)
+          SaifuResource(item.id, item.subCategoryID, item.name, item.explain, item.initialBalance)
         )
       )
   }
@@ -38,7 +37,7 @@ class SaifuResourceHandler @Inject() (saifuDAO: SaifuDAO)(implicit ec: Execution
       .all(userID)
       .map(items =>
         items.map(item =>
-          SaifuResource(item.id, item.subCategoryID, item.name, item.explain, item.initialBalance, item.currentBalance)
+          SaifuResource(item.id, item.subCategoryID, item.name, item.explain, item.initialBalance)
         )
       )
   }
@@ -53,8 +52,7 @@ class SaifuResourceHandler @Inject() (saifuDAO: SaifuDAO)(implicit ec: Execution
           userID = userID,
           name = createSaifuInput.name,
           explain = createSaifuInput.explain,
-          initialBalance = createSaifuInput.initialBalance,
-          currentBalance = createSaifuInput.initialBalance
+          initialBalance = createSaifuInput.initialBalance
         )
       )
   }
