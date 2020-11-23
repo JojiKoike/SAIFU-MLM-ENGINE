@@ -125,16 +125,14 @@ class SlickSaifuTransferDAO @Inject() (db: Database)(implicit ec: ExecutionConte
           // Create From-Saifu History Record
           TSaifuHistories.map(item =>
             (item.saifuId, item.saifuTransferId, item.transactionAmount, item.transactionDate)
-          ) += (Option(
-            string2UUID(saifuTransfer.fromSaifuID)
-          ), Option(saifuTransferID), -saifuTransfer.amount, saifuTransfer.transactionDate)
+          ) += (Option(string2UUID(saifuTransfer.fromSaifuID)),
+            Option(saifuTransferID), -saifuTransfer.amount, saifuTransfer.transactionDate)
         }.andThen {
           // Create From-Saifu History Record
           TSaifuHistories.map(item =>
             (item.saifuId, item.saifuTransferId, item.transactionAmount, item.transactionDate)
-          ) += (Option(
-            string2UUID(saifuTransfer.toSaifuID)
-          ), Option(saifuTransferID), saifuTransfer.amount, saifuTransfer.transactionDate)
+          ) += (Option(string2UUID(saifuTransfer.toSaifuID)),
+            Option(saifuTransferID), saifuTransfer.amount, saifuTransfer.transactionDate)
         }
       }.transactionally
     )
