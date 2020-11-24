@@ -9,20 +9,20 @@ trait SaifuHistoryDAO {
   def lookup(
       userID: String,
       saifuID: String,
-      transactionDateFrom: DateTime = DateTime.now().minusYears(1),
-      transactionDateTo: DateTime = DateTime.now()
+      transactionDateFrom: DateTime,
+      transactionDateTo: DateTime
   ): Future[Seq[SaifuHistory]]
 
   def tenantAll(
       tenantID: String,
-      transactionDateFrom: DateTime = DateTime.now().minusYears(1),
-      transactionDateTo: DateTime = DateTime.now()
+      transactionDateFrom: DateTime,
+      transactionDateTo: DateTime
   ): Future[Seq[SaifuHistory]]
 
   def userAll(
       userID: String,
-      transactionDateFrom: DateTime = DateTime.now().minusYears(1),
-      transactionDateTo: DateTime = DateTime.now()
+      transactionDateFrom: DateTime,
+      transactionDateTo: DateTime
   ): Future[Seq[SaifuHistory]]
 
   def close(): Future[Unit]
